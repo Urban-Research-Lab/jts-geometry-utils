@@ -7,7 +7,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:latest.release"
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+'
     }
 }
 
@@ -31,6 +31,7 @@ configurations {
 apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
 
 dependencies {
     compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.10'
@@ -52,11 +53,68 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
+bintray {
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_KEY')
+    publications = ['geomUtilsPublication']
+    pkg {
+        version {
+            name = '1.0.0'
+            desc = 'Initial release'
+            released  = new Date()
+            vcsTag = '1.0.0'
+        }
+    }
+}
+
+// Create the pom configuration:
+def pomConfig = {
+    licenses {
+        license {
+            name "The Apache Software License, Version 2.0"
+            url "http://www.apache.org/licenses/LICENSE-2.0.txt"
+            distribution "repo"
+        }
+    }
+    developers {
+        developer {
+            id "esmirnov"
+            name "Egor Smirnov"
+            email "evsmirnov@itmo.ru"
+        }
+    }
+
+    scm {
+        url "https://github.com/Urban-Research-Lab/jts-geometry-utils"
+    }
+}
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
+    classifier "sources"
+}
+
+task javadocJar(type: Jar) {
+    from javadoc.destinationDir
+    classifier "javadoc"
+}
 
 publishing {
     publications {
-        mavenJava(MavenPublication) {
+        geomUtilsPublication(MavenPublication) {
             from components.java
+            artifact sourcesJar
+            artifact javadocJar
+            groupId 'ru.itmo.idu'
+            artifactId 'jts-geometry-utils'
+            version '1.0.'
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('description', 'Classes for common geometry manipulations and CRS projectsion, used in GIS development')
+                root.appendNode('name', 'geometry-utils')
+                root.appendNode('url', 'https://github.com/Urban-Research-Lab/jts-geometry-utils')
+                root.children().last() + pomConfig
+            }
         }
     }
 }
