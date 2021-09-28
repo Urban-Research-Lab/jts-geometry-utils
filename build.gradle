@@ -108,7 +108,7 @@ publishing {
             artifact javadocJar
             groupId 'ru.itmo.idu'
             artifactId 'jts-geometry-utils'
-            version '1.0.'
+            version '1.0.0'
             pom.withXml {
                 def root = asNode()
                 root.appendNode('description', 'Classes for common geometry manipulations and CRS projectsion, used in GIS development')
