@@ -1,7 +1,6 @@
 package ru.itmo.idu.geometry;
 
 import lombok.val;
-import lombok.var;
 import org.locationtech.jts.geom.*;
 import org.locationtech.jts.geom.impl.CoordinateArraySequence;
 import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
