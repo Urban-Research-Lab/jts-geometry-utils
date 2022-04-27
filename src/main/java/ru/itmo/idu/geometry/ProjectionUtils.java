@@ -6,10 +6,12 @@ import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.GeodeticCalculator;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.locationtech.jts.algorithm.Angle;
 import org.locationtech.jts.algorithm.MinimumDiameter;
 import org.locationtech.jts.geom.*;
 import org.locationtech.jts.operation.buffer.BufferOp;
 import org.locationtech.jts.operation.buffer.BufferParameters;
+import org.locationtech.jts.simplify.TopologyPreservingSimplifier;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
@@ -56,8 +58,28 @@ public class ProjectionUtils {
      */
     public static Geometry bufferProjected(Geometry geom,
                                            double meters) {
-        return bufferProjected(geom, meters, new BufferParameters(16, BufferParameters.CAP_ROUND, BufferParameters.JOIN_ROUND, BufferParameters.DEFAULT_MITRE_LIMIT));
+        return bufferProjected(geom, meters, new BufferParameters(4, BufferParameters.CAP_ROUND, BufferParameters.JOIN_ROUND, BufferParameters.DEFAULT_MITRE_LIMIT));
 
+    }
+
+    public static Geometry bufferProjected(CoordinateReferenceSystem localCrs,
+                                           Geometry geom,
+                                           double meters) {
+        return bufferProjected(localCrs, geom, meters, new BufferParameters(4, BufferParameters.CAP_ROUND, BufferParameters.JOIN_ROUND, BufferParameters.DEFAULT_MITRE_LIMIT));
+
+    }
+
+    public static Geometry bufferProjected(Geometry geom,
+                                           double meters, BufferParameters bufferParameters) {
+        if (geom.isEmpty()) {
+            return geom;
+        }
+        try {
+            return bufferProjected(getLocalCRS(geom), geom, meters, bufferParameters);
+        } catch (FactoryException e) {
+            log.error("Failed to buffer geometry", e);
+            return geom;
+        }
     }
 
     /**
@@ -67,32 +89,50 @@ public class ProjectionUtils {
      * depending on point on Earth. Such buffer will look deformed (iths width and height will not be equal).
      * So geometry needs to be projected to some plain 2d CRS first, then buffered, then projected back to WGS84
      */
-    public static Geometry bufferProjected(Geometry geom,
-                                           double meters, BufferParameters bufferParameters) {
+    public static Geometry bufferProjected(
+            CoordinateReferenceSystem localCrs,
+            Geometry geom,
+            double meters,
+            BufferParameters bufferParameters) {
         try {
-            geom = (Geometry) geom.clone();
-            val invertCoordinateFilter = new InvertCoordinateFilter();
-            geom.apply(invertCoordinateFilter);
+            if (geom.isEmpty()) {
+                return geom;
+            }
 
-            CoordinateReferenceSystem auto = getLocalCRS(geom);
-            val globalToLocal = CRS.findMathTransform(DefaultGeographicCRS.WGS84, auto);
-            val localToGlobal = CRS.findMathTransform(auto, DefaultGeographicCRS.WGS84);
+            geom = (Geometry) geom.clone();
+
+            val globalToLocal = CRS.findMathTransform(DefaultGeographicCRS.WGS84, localCrs);
+            val localToGlobal = CRS.findMathTransform(localCrs, DefaultGeographicCRS.WGS84);
 
             Geometry projectedGeom = JTS.transform(geom, globalToLocal);
             // buffer
             Geometry projectedBufferedGeom =  BufferOp.bufferOp(projectedGeom, meters, bufferParameters);
             // reproject the geometry to the original projection
 
-            val rz = JTS.transform(projectedBufferedGeom, localToGlobal);
-            rz.apply(invertCoordinateFilter);
-            return rz;
+            return JTS.transform(projectedBufferedGeom, localToGlobal);
         } catch (Exception ex) {
             log.error("Failed to buffer geometry", ex);
             return geom;
         }
     }
 
-
+    /**
+     * Simplifies geometry, collapsing points that are less than meters from each other
+     * Projects to Mercator, simplifies, projects back
+     * @param geom Geom in WGS84
+     * @param meters Minimal in meters between points
+     * @return Simplified geom in WGS84
+     */
+    public static Geometry simplifyProjected(Geometry geom, double meters) {
+        if (geom == null || geom.isEmpty()) {
+            return geom;
+        }
+        Geometry projected = transformToMercator(geom);
+        TopologyPreservingSimplifier simplifier = new TopologyPreservingSimplifier(projected);
+        simplifier.setDistanceTolerance(meters);
+        Geometry projectedSimplified = simplifier.getResultGeometry();
+        return transformFromMercator(projectedSimplified);
+    }
 
     /**
      * Projects given polygon to 2d plane and calculates its area in square meters
@@ -119,6 +159,7 @@ public class ProjectionUtils {
             return line.getLength();
         }
     }
+
 
     /**
      * Builds a correct round buffer around given point. Suitable for making circular areas on the map look really circular
@@ -166,6 +207,49 @@ public class ProjectionUtils {
         return JTS.transform(geometry, getLocalCRSTransform(geometry));
     }
 
+    public static Coordinate transformToLocalCRS(Coordinate coordinate) {
+        try {
+            return transformToLocalCRS(getLocalCRS(makePoint(coordinate)), coordinate);
+        } catch (FactoryException e) {
+            log.error("Failed to transform", e);
+            return coordinate;
+        }
+    }
+
+    public static Coordinate transformToLocalCRS(CoordinateReferenceSystem crs, Coordinate coordinate) {
+        try {
+            Coordinate dest = new Coordinate();
+            return JTS.transform(coordinate, dest, CRS.findMathTransform( DefaultGeographicCRS.WGS84, crs));
+        } catch (TransformException | FactoryException e) {
+            log.error("Failed to transform", e);
+            return coordinate;
+        }
+    }
+
+    public static Coordinate transformFromLocalCRS(CoordinateReferenceSystem crs, Coordinate coordinate) {
+        try {
+            Coordinate dest = new Coordinate();
+            return JTS.transform(coordinate,
+                    dest,
+                    CRS.findMathTransform(crs, DefaultGeographicCRS.WGS84));
+        } catch (Exception e) {
+            log.error("Failed to transform", e);
+            return coordinate;
+        }
+    }
+
+    public static Geometry transformFromLocalCRS(CoordinateReferenceSystem crs, Geometry geometry) {
+        if (geometry.isEmpty()) {
+            return geometry;
+        }
+        try {
+            return JTS.transform(geometry, CRS.findMathTransform(crs, DefaultGeographicCRS.WGS84));
+        } catch (Exception e) {
+            log.error("Failed to transform", e);
+            return geometry;
+        }
+    }
+
     /**
      * Transforms given geometry from Mercator to WGS84
      */
@@ -186,6 +270,15 @@ public class ProjectionUtils {
             log.error("Failed to transform ", e);
         }
         return new MinimumDiameter(projected);
+    }
+
+    public static double angleBetweenProjected(Coordinate firstEnd, Coordinate middle, Coordinate secondEnd) {
+        return Angle.angleBetween(
+                transformToLocalCRS(firstEnd),
+                transformToLocalCRS(middle),
+                transformToLocalCRS(secondEnd)
+        );
+
     }
 
     public static double getMinWidthMeters(Geometry g) {

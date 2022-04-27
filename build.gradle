@@ -1,6 +1,6 @@
 
 group 'ru.itmo.idu'
-version '1.0.0'
+version '2.0.0'
 
 buildscript {
     repositories {
@@ -60,10 +60,10 @@ bintray {
     publications = ['geomUtilsPublication']
     pkg {
         version {
-            name = '1.0.0'
-            desc = 'Initial release'
+            name = '2.0.0'
+            desc = 'New algorithms added'
             released  = new Date()
-            vcsTag = '1.0.0'
+            vcsTag = '2.0.0'
         }
     }
 }
@@ -108,7 +108,7 @@ publishing {
             artifact javadocJar
             groupId 'ru.itmo.idu'
             artifactId 'jts-geometry-utils'
-            version '1.0.0'
+            version '2.0.0'
             pom.withXml {
                 def root = asNode()
                 root.appendNode('description', 'Classes for common geometry manipulations and CRS projectsion, used in GIS development')

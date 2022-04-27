@@ -6,6 +6,7 @@ import org.locationtech.jts.operation.buffer.BufferParameters;
 import org.locationtech.jts.simplify.TopologyPreservingSimplifier;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -115,5 +116,15 @@ public class Algorithms {
             }
         }
         return closest;
+    }
+
+    public static List<LineSegment> findLongestBorderSegments(Geometry geometry, int limit) {
+        List<LineSegment> result = new ArrayList<>();
+        for (int i = 0; i < geometry.getCoordinates().length - 1; ++i) {
+            LineSegment ls = new LineSegment(geometry.getCoordinates()[i], geometry.getCoordinates()[i + 1]);
+            result.add(ls);
+        }
+        result.sort(Comparator.comparingDouble(LineSegment::getLength).reversed());
+        return result.subList(0, Math.min(result.size(), limit));
     }
 }

@@ -209,4 +209,34 @@ public class GeometryUtils {
         return null;
     }
 
+    public static List<LineSegment> geometrySegmentList(Geometry geometry) {
+        List<LineSegment> segmentList = new ArrayList<>();
+        if(geometry.getCoordinates().length < 2) {
+            return segmentList;
+        }
+
+        for(int i = 0; i < geometry.getCoordinates().length -1; ++i) {
+            LineSegment segment = new LineSegment(
+                    geometry.getCoordinates()[i],
+                    geometry.getCoordinates()[i + 1]
+            );
+
+            segmentList.add(segment);
+        }
+
+        return segmentList;
+    }
+
+
+    /**
+     * Intersects with guard against TPEs, returns false if TPE occurs
+     */
+    public static boolean safeIntersects(Geometry first, Geometry second) {
+        try {
+            return first.intersects(second);
+        } catch (TopologyException tpe) {
+            return false;
+        }
+    }
+
 }
