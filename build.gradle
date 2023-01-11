@@ -1,15 +1,6 @@
 
 group 'ru.itmo.idu'
-version '2.0.0'
-
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+'
-    }
-}
+version '3.0.0'
 
 repositories {
     maven {
@@ -20,7 +11,6 @@ repositories {
     }
     mavenLocal()
     mavenCentral()
-    jcenter()
 }
 
 configurations {
@@ -31,7 +21,6 @@ configurations {
 apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
-apply plugin: 'com.jfrog.bintray'
 
 dependencies {
     compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.10'
@@ -54,41 +43,6 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
-bintray {
-    user = System.getenv('BINTRAY_USER')
-    key = System.getenv('BINTRAY_KEY')
-    publications = ['geomUtilsPublication']
-    pkg {
-        version {
-            name = '2.0.0'
-            desc = 'New algorithms added'
-            released  = new Date()
-            vcsTag = '2.0.0'
-        }
-    }
-}
-
-// Create the pom configuration:
-def pomConfig = {
-    licenses {
-        license {
-            name "The Apache Software License, Version 2.0"
-            url "http://www.apache.org/licenses/LICENSE-2.0.txt"
-            distribution "repo"
-        }
-    }
-    developers {
-        developer {
-            id "esmirnov"
-            name "Egor Smirnov"
-            email "evsmirnov@itmo.ru"
-        }
-    }
-
-    scm {
-        url "https://github.com/Urban-Research-Lab/jts-geometry-utils"
-    }
-}
 
 task sourcesJar(type: Jar) {
     from sourceSets.main.allJava
@@ -101,21 +55,19 @@ task javadocJar(type: Jar) {
 }
 
 publishing {
-    publications {
-        geomUtilsPublication(MavenPublication) {
-            from components.java
-            artifact sourcesJar
-            artifact javadocJar
-            groupId 'ru.itmo.idu'
-            artifactId 'jts-geometry-utils'
-            version '2.0.0'
-            pom.withXml {
-                def root = asNode()
-                root.appendNode('description', 'Classes for common geometry manipulations and CRS projectsion, used in GIS development')
-                root.appendNode('name', 'geometry-utils')
-                root.appendNode('url', 'https://github.com/Urban-Research-Lab/jts-geometry-utils')
-                root.children().last() + pomConfig
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/Urban-Research-Lab/jts-geometry-utils")
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+                password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
             }
+        }
+    }
+    publications {
+        gpr(MavenPublication) {
+            from(components.java)
         }
     }
 }
