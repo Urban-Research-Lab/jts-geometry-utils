@@ -1,0 +1,7 @@
+{
+"type": "FeatureCollection",
+"name": "11145_narrow_angle_block",
+"features": [
+{ "type": "Feature", "properties": { "area": 10201.975792230751, "addons": "COMMERCIAL,PITCH,PARKING_STYLOBATE,DOMINANT", "allowed_types": "[commercial, residential, police, large_park, clinic, fire_station]", "blockType": "residential", "id": 61229743, "type": "block", "tags": "PRIMARY_ROAD,WEIRD_SHAPE,LONG_NARROW" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 30.28799223604355, 59.7202520115883 ], [ 30.29028731604355, 59.719493931588303 ], [ 30.28900102604355, 59.718500321588301 ], [ 30.28799223604355, 59.7202520115883 ] ] ] } }
+]
+}
