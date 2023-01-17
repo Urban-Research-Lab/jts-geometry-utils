@@ -348,5 +348,50 @@ public class ProjectionUtils {
         return GeometryUtils.makeLine(start, end);
     }
 
+    public static double calcAzimuth(Coordinate c1, Coordinate c2) {
+        return calcAzimuth(GeometryUtils.makeLine(c1, c2));
+    }
+
+    public static double calcAzimuth(LineString ls) {
+        try {
+            CoordinateReferenceSystem localCRS = getLocalCRS(ls);
+            return calcAzimuth(localCRS, ls);
+        }
+        catch (Exception e) {
+            log.error("Failed to calc azimuth", e);
+            return 0;
+        }
+    }
+
+    public static double calcAzimuth(CoordinateReferenceSystem localCRS, Coordinate c1, Coordinate c2) {
+        return calcAzimuth(localCRS, GeometryUtils.makeLine(c1, c2));
+    }
+
+    public static double calcAzimuth(CoordinateReferenceSystem localCRS, LineString ls) {
+        try {
+            Coordinate[] coordinates = ls.getCoordinates();
+            if(coordinates.length == 0 || ls.isEmpty()) {
+                return 0d;  //probably better throw exception
+            }
+
+            if(ls.getCoordinates().length != 2) {
+                throw new IllegalArgumentException(
+                        String.format("LineString with 2 coordinates expected; %d coordinates provided", coordinates.length)
+                );
+            }
+
+            val globalToLocal = CRS.findMathTransform(DefaultGeographicCRS.WGS84, localCRS);
+
+            LineString lsLocal = (LineString) JTS.transform(ls, globalToLocal);
+            LineSegment segment = new LineSegment(ls.getCoordinateN(0), ls.getCoordinateN(1));
+
+            return GeometryUtils.angleToAzimuth(segment.angle());
+        }
+        catch (Exception e) {
+            log.error("Failed to calc azimuth", e);
+            return 0;
+        }
+    }
+
 
 }

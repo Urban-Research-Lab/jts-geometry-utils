@@ -4,6 +4,7 @@ import org.geotools.feature.FeatureCollection;
 import org.geotools.geojson.feature.FeatureJSON;
 import org.junit.Assert;
 import org.junit.Test;
+import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.opengis.feature.Feature;
 import org.opengis.referencing.FactoryException;
@@ -46,5 +47,14 @@ public class ProjectionUtilsTest {
 
         Feature next = fc.features().next();
         return (Geometry) next.getDefaultGeometryProperty().getValue();
+    }
+
+    @Test
+    public void testCalcAzimuth() {
+        Coordinate c1 = new Coordinate(30.5413682568238, 59.88265603527486);
+        Coordinate c2 = new Coordinate(30.54140787107076, 59.87633443882797);
+
+        double azimuth = ProjectionUtils.calcAzimuth(c1, c2);
+        Assert.assertEquals(180d, azimuth, 0.5);
     }
 }
