@@ -139,8 +139,12 @@ public class ProjectionUtils {
      */
     public static double calcArea(Geometry geometry) {
         try {
-            val projed = JTS.transform(geometry, getLocalCRSTransform(geometry));
-            return projed.getArea();
+            if (geometry.isEmpty()){
+                return geometry.getArea();
+            } else {
+                val projed = JTS.transform(geometry, getLocalCRSTransform(geometry));
+                return projed.getArea();
+            }
         } catch (Exception ex) {
             log.error("Failed to calc area", ex);
             return geometry.getArea();
@@ -152,8 +156,12 @@ public class ProjectionUtils {
      */
     public static double calcLength(LineString line) {
         try {
-            val projed = JTS.transform(line, getLocalCRSTransform(line));
-            return projed.getLength();
+            if (line.isEmpty()){
+                return line.getLength();
+            } else {
+                val projed = JTS.transform(line, getLocalCRSTransform(line));
+                return projed.getLength();
+            }
         } catch (Exception ex) {
             log.error("Failed to calc area", ex);
             return line.getLength();
@@ -204,7 +212,17 @@ public class ProjectionUtils {
     }
 
     public static Geometry transformToLocalCRS(Geometry geometry) throws FactoryException, TransformException {
+        if (geometry.isEmpty()){
+            return geometry;
+        }
         return JTS.transform(geometry, getLocalCRSTransform(geometry));
+    }
+
+    public static Geometry transformToLocalCRS(CoordinateReferenceSystem crs, Geometry geometry) throws FactoryException, TransformException {
+        if (geometry.isEmpty()){
+            return geometry;
+        }
+        return JTS.transform(geometry, CRS.findMathTransform(DefaultGeographicCRS.WGS84, crs));
     }
 
     public static Coordinate transformToLocalCRS(Coordinate coordinate) {
@@ -238,12 +256,36 @@ public class ProjectionUtils {
         }
     }
 
+    public static Coordinate transformFromLocalCRS(Coordinate coordinate) {
+        try {
+            Coordinate dest = new Coordinate();
+            return JTS.transform(coordinate,
+                    dest,
+                    CRS.findMathTransform(getLocalCRS(makePoint(coordinate)), DefaultGeographicCRS.WGS84));
+        } catch (Exception e) {
+            log.error("Failed to transform", e);
+            return coordinate;
+        }
+    }
+
     public static Geometry transformFromLocalCRS(CoordinateReferenceSystem crs, Geometry geometry) {
         if (geometry.isEmpty()) {
             return geometry;
         }
         try {
             return JTS.transform(geometry, CRS.findMathTransform(crs, DefaultGeographicCRS.WGS84));
+        } catch (Exception e) {
+            log.error("Failed to transform", e);
+            return geometry;
+        }
+    }
+
+    public static Geometry transformFromLocalCRS(Geometry geometry) {
+        if (geometry.isEmpty()) {
+            return geometry;
+        }
+        try {
+            return JTS.transform(geometry, CRS.findMathTransform(getLocalCRS(geometry), DefaultGeographicCRS.WGS84));
         } catch (Exception e) {
             log.error("Failed to transform", e);
             return geometry;
