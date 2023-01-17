@@ -306,5 +306,31 @@ public class ProjectionUtils {
         return GeometryUtils.makeLine(start, end);
     }
 
+    public static LineString increaseLineLength(LineString ls, double fraction) {
+        try {
+            val localCrs = CRSUtils.getLocalCRS(ls);
+            return increaseLineLength(localCrs, ls, fraction);
+        } catch (Exception ex) {
+            log.error("Failed to increase line length", ex);
+            return ls;
+        }
+    }
 
+    /**
+     * Accepts a LineString (in WGS84) consisting of two coordinates and increases its length by a fraction of its length.
+     * E.g. when a 0.5 fraction is passed, the line will be prolonged by 25% of its length from each end.
+     * */
+    public static LineString increaseLineLength(CoordinateReferenceSystem localCrs, LineString ls, double fraction) {
+        try {
+            val globalToLocal = CRS.findMathTransform(DefaultGeographicCRS.WGS84, localCrs);
+            val localToGlobal = CRS.findMathTransform(localCrs, DefaultGeographicCRS.WGS84);
+
+            LineString lsLocal = (LineString) JTS.transform(ls, globalToLocal);
+            LineString increased = GeometryUtils.increaseLineLength(lsLocal, fraction);
+            return (LineString) JTS.transform(increased, localToGlobal);
+        } catch (Exception ex) {
+            log.error("Failed to increase line length", ex);
+            return ls;
+        }
+    }
 }
