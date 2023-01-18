@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.operation.buffer.BufferParameters;
 import org.opengis.feature.Feature;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -13,7 +14,8 @@ import org.opengis.referencing.operation.TransformException;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static ru.itmo.idu.geometry.GeometryUtils.geometryFactory;
 
 public class ProjectionUtilsTest {
@@ -48,6 +50,20 @@ public class ProjectionUtilsTest {
 
         Feature next = fc.features().next();
         return (Geometry) next.getDefaultGeometryProperty().getValue();
+    }
+
+    @Test
+    public void testMakeCircle() {
+        Coordinate coordinate = new Coordinate(30.5413682568238, 59.88265603527486);
+        Geometry circle = ProjectionUtils.makeCircle(coordinate, 10d);
+
+        double area = ProjectionUtils.calcArea(circle);
+        assertEquals(306d, area, 1.0);
+
+        BufferParameters bufferParameters = new BufferParameters(8, BufferParameters.CAP_ROUND, BufferParameters.JOIN_ROUND, BufferParameters.DEFAULT_MITRE_LIMIT);
+        circle = ProjectionUtils.makeCircle(coordinate, 10d, bufferParameters);
+        area = ProjectionUtils.calcArea(circle);
+        assertEquals(312d, area, 1.0);
     }
 
     @Test
