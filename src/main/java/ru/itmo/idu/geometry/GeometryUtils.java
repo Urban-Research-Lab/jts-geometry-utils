@@ -239,4 +239,48 @@ public class GeometryUtils {
         }
     }
 
+    public static double angleToAzimuth(double angle) {
+        double azimuth = Math.toDegrees((Math.PI / 2) - angle);
+        return fixAzimuth(azimuth);
+    }
+
+    public static double azimuthToAngle(double azimuth) {
+        return Math.toRadians(
+                fixAzimuth(90 - azimuth)
+        );
+    }
+
+    /**
+     * If azimuth is negative, it converts the azimuth into positive equivalent between 0 and 360
+     * If azimuth is positive and greater than 360, it converts to the equivalent between 0 and 360
+     */
+    public static double fixAzimuth(double azimuth) {
+        return azimuth < 0
+                ? azimuth + 360 * Math.ceil(Math.abs(azimuth) / 360)
+                : azimuth % 360;
+    }
+
+    /**
+     * Accepts a LineString consisting of two coordinates and increases its length by a fraction of its length.
+     * E.g. when a 0.5 fraction is passed, the line will be prolonged by 25% of its length from each end.
+     * */
+    public static LineString increaseLineLength(LineString ls, double fraction) {
+        Coordinate[] coordinates = ls.getCoordinates();
+        if(coordinates.length == 0 || ls.isEmpty()) {
+            return ls;
+        }
+
+        if(coordinates.length != 2) {
+            throw new IllegalArgumentException(
+                    String.format("LineString with 2 coordinates expected; %d coordinates provided", coordinates.length)
+            );
+        }
+
+        LineSegment segment = new LineSegment(coordinates[0], coordinates[1]);
+        Coordinate newCoord1 = segment.pointAlong(fraction / 2 * -1);
+        Coordinate newCoord2 = segment.pointAlong(fraction / 2 + 1d);
+
+        return makeLine(newCoord1, newCoord2);
+    }
+
 }
