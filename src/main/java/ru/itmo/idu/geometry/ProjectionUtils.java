@@ -348,6 +348,29 @@ public class ProjectionUtils {
         return GeometryUtils.makeLine(start, end);
     }
 
+    public static double calcAzimuth(Coordinate c1, Coordinate c2) {
+        GeodeticCalculator gc = new GeodeticCalculator();
+        gc.setStartingGeographicPoint(c1.x, c1.y);
+        gc.setDestinationGeographicPoint(c2.x, c2.y);
+
+        return gc.getAzimuth();
+    }
+
+    public static double calcAzimuth(LineString ls) {
+        Coordinate[] coordinates = ls.getCoordinates();
+        if(coordinates.length == 0 || ls.isEmpty()) {
+            return 0d;  //probably better throw exception
+        }
+
+        if(ls.getCoordinates().length != 2) {
+            throw new IllegalArgumentException(
+                    String.format("LineString with 2 coordinates expected; %d coordinates provided", coordinates.length)
+            );
+        }
+
+        return calcAzimuth(ls.getCoordinateN(0), ls.getCoordinateN(1));
+    }
+
     public static LineString increaseLineLength(LineString ls, double fraction) {
         try {
             val localCrs = CRSUtils.getLocalCRS(ls);

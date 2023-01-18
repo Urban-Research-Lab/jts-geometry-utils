@@ -6,7 +6,34 @@ import org.locationtech.jts.geom.LineString;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class GeometryUtilsTest {
+public class GeometryUtilsTest {
+
+    @Test
+    public void testAngleToAzimuth() {
+        double azimuth = -2;
+        azimuth = GeometryUtils.fixAzimuth(azimuth);
+        assertEquals(358, azimuth, 0.001);
+
+        azimuth = -362;
+        azimuth = GeometryUtils.fixAzimuth(azimuth);
+        assertEquals(358, azimuth, 0.001);
+
+        azimuth = 0;
+        azimuth = GeometryUtils.fixAzimuth(azimuth);
+        assertEquals(0, azimuth, 0.001);
+
+        azimuth = 360;
+        azimuth = GeometryUtils.fixAzimuth(azimuth);
+        assertEquals(0, azimuth, 0.001);
+
+        azimuth = 2;
+        azimuth = GeometryUtils.fixAzimuth(azimuth);
+        assertEquals(2, azimuth, 0.001);
+
+        azimuth = 362;
+        azimuth = GeometryUtils.fixAzimuth(azimuth);
+        assertEquals(2, azimuth, 0.001);
+    }
 
     @Test
     void increaseLineLength() {
