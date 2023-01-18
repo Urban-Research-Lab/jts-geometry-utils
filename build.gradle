@@ -50,7 +50,7 @@ dependencies {
     implementation group: 'org.geotools', name: 'gt-epsg-hsql', version: '26.4'
     implementation group: 'org.geotools', name: 'gt-opengis', version: '26.4'
     implementation group: 'org.geotools', name: 'gt-geojson', version: '26.4'
-    testImplementation group: 'junit', name: 'junit', version: '4.12'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 }
 
 bintray {
@@ -117,4 +117,8 @@ publishing {
             }
         }
     }
+}
+
+test {
+    useJUnitPlatform()
 }

@@ -239,4 +239,27 @@ public class GeometryUtils {
         }
     }
 
+    /**
+     * Accepts a LineString consisting of two coordinates and increases its length by a fraction of its length.
+     * E.g. when a 0.5 fraction is passed, the line will be prolonged by 25% of its length from each end.
+     * */
+    public static LineString increaseLineLength(LineString ls, double fraction) {
+        Coordinate[] coordinates = ls.getCoordinates();
+        if(coordinates.length == 0 || ls.isEmpty()) {
+            return ls;
+        }
+
+        if(coordinates.length != 2) {
+            throw new IllegalArgumentException(
+                    String.format("LineString with 2 coordinates expected; %d coordinates provided", coordinates.length)
+            );
+        }
+
+        LineSegment segment = new LineSegment(coordinates[0], coordinates[1]);
+        Coordinate newCoord1 = segment.pointAlong(fraction / 2 * -1);
+        Coordinate newCoord2 = segment.pointAlong(fraction / 2 + 1d);
+
+        return makeLine(newCoord1, newCoord2);
+    }
+
 }
