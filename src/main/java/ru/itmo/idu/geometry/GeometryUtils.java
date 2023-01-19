@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Helper methods for working with JTS Geometry class
@@ -283,4 +284,12 @@ public class GeometryUtils {
         return makeLine(newCoord1, newCoord2);
     }
 
+    public static Geometry makePolygonFromCoordinates (List<Coordinate> coordinates, double buffer){
+        List<Geometry> pointsList = new ArrayList<>();
+        coordinates.forEach(sp -> pointsList.add(ProjectionUtils.bufferProjected(GeometryUtils.makePoint(sp), buffer)));
+        Geometry[] pointsArray = pointsList.toArray(new Geometry[0]);
+        Geometry geometryCollection  = geometryFactory.createGeometryCollection(pointsArray);
+        geometryCollection = geometryCollection.union();
+        return geometryCollection;
+    }
 }
