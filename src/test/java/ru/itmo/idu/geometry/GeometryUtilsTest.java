@@ -3,6 +3,7 @@ package ru.itmo.idu.geometry;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.Point;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -58,5 +59,15 @@ public class GeometryUtilsTest {
             LineString ls1 = GeometryUtils.geometryFactory.createLineString(new Coordinate[]{c1, c2, c3});
             GeometryUtils.increaseLineLength(ls1, 0.5);
         });
+    }
+
+    @Test
+    void testMakePoint() {
+        Point p1 = GeometryUtils.makePoint(10, 20);
+        Point p2 = GeometryUtils.makePoint(new Coordinate(10, 20));
+
+        assertEquals(p1, p2);
+        assertEquals(10.0, p1.getX());
+        assertEquals(20.0, p2.getY());
     }
 }

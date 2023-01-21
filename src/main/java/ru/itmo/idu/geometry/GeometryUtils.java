@@ -38,6 +38,14 @@ public class GeometryUtils {
         );
     }
 
+    public static LineString makeLine(Coordinate... coordinates) {
+        return new LineString(
+                new CoordinateArraySequence(
+                        coordinates
+                ), geometryFactory
+        );
+    }
+
     /**
      * Creates a line from a list of x,y points
      */
@@ -54,6 +62,9 @@ public class GeometryUtils {
         );
     }
 
+    public static Point makePoint(double x, double y) {
+        return makePoint(new Coordinate(x, y));
+    }
 
     public static Point makePoint(Coordinate coordinate) {
         return new Point(new CoordinateArraySequence(new Coordinate[]{coordinate}), geometryFactory);
