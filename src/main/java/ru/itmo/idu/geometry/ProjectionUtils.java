@@ -139,8 +139,12 @@ public class ProjectionUtils {
      */
     public static double calcArea(Geometry geometry) {
         try {
-            val projed = JTS.transform(geometry, getLocalCRSTransform(geometry));
-            return projed.getArea();
+            if (geometry.isEmpty()){
+                return geometry.getArea();
+            } else {
+                val projed = JTS.transform(geometry, getLocalCRSTransform(geometry));
+                return projed.getArea();
+            }
         } catch (Exception ex) {
             log.error("Failed to calc area", ex);
             return geometry.getArea();
@@ -152,8 +156,12 @@ public class ProjectionUtils {
      */
     public static double calcLength(LineString line) {
         try {
-            val projed = JTS.transform(line, getLocalCRSTransform(line));
-            return projed.getLength();
+            if (line.isEmpty()){
+                return line.getLength();
+            } else {
+                val projed = JTS.transform(line, getLocalCRSTransform(line));
+                return projed.getLength();
+            }
         } catch (Exception ex) {
             log.error("Failed to calc area", ex);
             return line.getLength();
@@ -204,7 +212,17 @@ public class ProjectionUtils {
     }
 
     public static Geometry transformToLocalCRS(Geometry geometry) throws FactoryException, TransformException {
+        if (geometry.isEmpty()){
+            return geometry;
+        }
         return JTS.transform(geometry, getLocalCRSTransform(geometry));
+    }
+
+    public static Geometry transformToLocalCRS(CoordinateReferenceSystem crs, Geometry geometry) throws FactoryException, TransformException {
+        if (geometry.isEmpty()){
+            return geometry;
+        }
+        return JTS.transform(geometry, CRS.findMathTransform(DefaultGeographicCRS.WGS84, crs));
     }
 
     public static Coordinate transformToLocalCRS(Coordinate coordinate) {
@@ -238,12 +256,36 @@ public class ProjectionUtils {
         }
     }
 
+    public static Coordinate transformFromLocalCRS(Coordinate coordinate) {
+        try {
+            Coordinate dest = new Coordinate();
+            return JTS.transform(coordinate,
+                    dest,
+                    CRS.findMathTransform(getLocalCRS(makePoint(coordinate)), DefaultGeographicCRS.WGS84));
+        } catch (Exception e) {
+            log.error("Failed to transform", e);
+            return coordinate;
+        }
+    }
+
     public static Geometry transformFromLocalCRS(CoordinateReferenceSystem crs, Geometry geometry) {
         if (geometry.isEmpty()) {
             return geometry;
         }
         try {
             return JTS.transform(geometry, CRS.findMathTransform(crs, DefaultGeographicCRS.WGS84));
+        } catch (Exception e) {
+            log.error("Failed to transform", e);
+            return geometry;
+        }
+    }
+
+    public static Geometry transformFromLocalCRS(Geometry geometry) {
+        if (geometry.isEmpty()) {
+            return geometry;
+        }
+        try {
+            return JTS.transform(geometry, CRS.findMathTransform(getLocalCRS(geometry), DefaultGeographicCRS.WGS84));
         } catch (Exception e) {
             log.error("Failed to transform", e);
             return geometry;
@@ -306,5 +348,63 @@ public class ProjectionUtils {
         return GeometryUtils.makeLine(start, end);
     }
 
+    public static Geometry makeCircle(Coordinate coordinate, double radius) {
+        BufferParameters bufferParameters = new BufferParameters(4, BufferParameters.CAP_ROUND, BufferParameters.JOIN_ROUND, BufferParameters.DEFAULT_MITRE_LIMIT);
+        return makeCircle(coordinate, radius, bufferParameters);
+    }
 
+    public static Geometry makeCircle(Coordinate coordinate, double radius, BufferParameters bufferParameters) {
+        return bufferProjected(GeometryUtils.makePoint(coordinate), radius, bufferParameters);
+    }
+
+    public static double calcAzimuth(Coordinate c1, Coordinate c2) {
+        GeodeticCalculator gc = new GeodeticCalculator();
+        gc.setStartingGeographicPoint(c1.x, c1.y);
+        gc.setDestinationGeographicPoint(c2.x, c2.y);
+
+        return gc.getAzimuth();
+    }
+
+    public static double calcAzimuth(LineString ls) {
+        Coordinate[] coordinates = ls.getCoordinates();
+        if(coordinates.length == 0 || ls.isEmpty()) {
+            return 0d;  //probably better throw exception
+        }
+
+        if(ls.getCoordinates().length != 2) {
+            throw new IllegalArgumentException(
+                    String.format("LineString with 2 coordinates expected; %d coordinates provided", coordinates.length)
+            );
+        }
+
+        return calcAzimuth(ls.getCoordinateN(0), ls.getCoordinateN(1));
+    }
+
+    public static LineString increaseLineLength(LineString ls, double fraction) {
+        try {
+            val localCrs = CRSUtils.getLocalCRS(ls);
+            return increaseLineLength(localCrs, ls, fraction);
+        } catch (Exception ex) {
+            log.error("Failed to increase line length", ex);
+            return ls;
+        }
+    }
+
+    /**
+     * Accepts a LineString (in WGS84) consisting of two coordinates and increases its length by a fraction of its length.
+     * E.g. when a 0.5 fraction is passed, the line will be prolonged by 25% of its length from each end.
+     * */
+    public static LineString increaseLineLength(CoordinateReferenceSystem localCrs, LineString ls, double fraction) {
+        try {
+            val globalToLocal = CRS.findMathTransform(DefaultGeographicCRS.WGS84, localCrs);
+            val localToGlobal = CRS.findMathTransform(localCrs, DefaultGeographicCRS.WGS84);
+
+            LineString lsLocal = (LineString) JTS.transform(ls, globalToLocal);
+            LineString increased = GeometryUtils.increaseLineLength(lsLocal, fraction);
+            return (LineString) JTS.transform(increased, localToGlobal);
+        } catch (Exception ex) {
+            log.error("Failed to increase line length", ex);
+            return ls;
+        }
+    }
 }
