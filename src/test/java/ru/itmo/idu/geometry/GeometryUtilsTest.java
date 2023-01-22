@@ -70,4 +70,13 @@ public class GeometryUtilsTest {
         assertEquals(10.0, p1.getX());
         assertEquals(20.0, p2.getY());
     }
+
+    @Test
+    public void testMakeLineWorksWith3DLines() {
+        LineString ls = GeometryUtils.makeLine(new Coordinate(1.0, 1.0, 100.0), new Coordinate(1.0, 1.0, 200.0));
+        assertEquals(100.0, ls.getCoordinates()[0].z);
+
+        ls = GeometryUtils.makeLine(new double[][]{{1.0, 1.0, 100.0}, {1.0, 1.0, 200.0}});
+        assertEquals(200.0, ls.getCoordinates()[1].z);
+    }
 }

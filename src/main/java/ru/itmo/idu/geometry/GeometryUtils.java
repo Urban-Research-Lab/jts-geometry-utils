@@ -53,7 +53,11 @@ public class GeometryUtils {
         Coordinate[] coordinates = new Coordinate[latLonPoints.length];
 
         for (int i = 0; i < latLonPoints.length; ++i) {
-            coordinates[i] = new Coordinate(latLonPoints[i][0], latLonPoints[i][1]);
+            if (latLonPoints[i].length >= 3) {
+                coordinates[i] = new Coordinate(latLonPoints[i][0], latLonPoints[i][1], latLonPoints[i][2]);
+            } else {
+                coordinates[i] = new Coordinate(latLonPoints[i][0], latLonPoints[i][1]);
+            }
         }
 
         return new LineString(
