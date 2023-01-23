@@ -76,11 +76,6 @@ public class GeometryUtilsTest {
     }
 
     @Test
-    public void testFailedForCheckingGithubActions() {
-        assertTrue(1 == 2);
-    }
-
-    @Test
     void testMakePoint() {
         Point p1 = GeometryUtils.makePoint(10, 20);
         Point p2 = GeometryUtils.makePoint(new Coordinate(10, 20));
