@@ -3,7 +3,6 @@ package ru.itmo.idu.geometry;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 
 import java.util.ArrayList;
@@ -75,8 +74,4 @@ public class GeometryUtilsTest {
         assertFalse(geomUnited.isEmpty());
     }
 
-    @Test
-    public void testFailedForCheckingGithubActions() {
-        assertTrue(1 == 2);
-    }
 }
