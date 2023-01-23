@@ -74,4 +74,8 @@ public class GeometryUtilsTest {
         assertFalse(geomUnited.isEmpty());
     }
 
+    @Test
+    public void testFailedForCheckingGithubActions() {
+        assertTrue(1 == 2);
+    }
 }
