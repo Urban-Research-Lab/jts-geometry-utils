@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.Point;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,5 +78,24 @@ public class GeometryUtilsTest {
     @Test
     public void testFailedForCheckingGithubActions() {
         assertTrue(1 == 2);
+    }
+
+    @Test
+    void testMakePoint() {
+        Point p1 = GeometryUtils.makePoint(10, 20);
+        Point p2 = GeometryUtils.makePoint(new Coordinate(10, 20));
+
+        assertEquals(p1, p2);
+        assertEquals(10.0, p1.getX());
+        assertEquals(20.0, p2.getY());
+    }
+
+    @Test
+    public void testMakeLineWorksWith3DLines() {
+        LineString ls = GeometryUtils.makeLine(new Coordinate(1.0, 1.0, 100.0), new Coordinate(1.0, 1.0, 200.0));
+        assertEquals(100.0, ls.getCoordinates()[0].z);
+
+        ls = GeometryUtils.makeLine(new double[][]{{1.0, 1.0, 100.0}, {1.0, 1.0, 200.0}});
+        assertEquals(200.0, ls.getCoordinates()[1].z);
     }
 }
