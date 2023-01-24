@@ -21,7 +21,6 @@ permissions:
 
 jobs:
   build:
-    if: ${{ github.event_name == 'release' }}
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -35,6 +34,7 @@ jobs:
       with:
         arguments: build
     - name: Publish package
+      if: ${{ github.event_name == 'release' }}
       uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
       with:
         arguments: publish
