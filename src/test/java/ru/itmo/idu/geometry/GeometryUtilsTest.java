@@ -2,8 +2,12 @@ package ru.itmo.idu.geometry;
 
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -59,6 +63,16 @@ public class GeometryUtilsTest {
             LineString ls1 = GeometryUtils.geometryFactory.createLineString(new Coordinate[]{c1, c2, c3});
             GeometryUtils.increaseLineLength(ls1, 0.5);
         });
+    }
+
+    @Test
+    public void testMakePolygonFromCoordinates() {
+        List<Coordinate> list = new ArrayList<>();
+        list.add(new Coordinate(30.28687717, 59.72104526));
+        list.add(new Coordinate(30.28917225, 59.72028718));
+        list.add(new Coordinate(30.28788596, 59.71929357));
+        Geometry geomUnited = GeometryUtils.makePolygonFromCoordinates(list, 2.0);
+        assertFalse(geomUnited.isEmpty());
     }
 
     @Test
