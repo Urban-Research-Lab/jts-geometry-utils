@@ -12,8 +12,8 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-  release:
-    types: [ published, created, released ]
+  tags:
+    - '*'
 
 permissions:
   contents: read
@@ -34,7 +34,7 @@ jobs:
       with:
         arguments: build
     - name: Publish package
-        if: github.event_name == 'release'
+        if: github.event_name == 'tags'
         uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
         with:
           arguments: publish
