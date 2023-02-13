@@ -11,6 +11,7 @@ import org.locationtech.jts.algorithm.MinimumDiameter;
 import org.locationtech.jts.geom.*;
 import org.locationtech.jts.operation.buffer.BufferOp;
 import org.locationtech.jts.operation.buffer.BufferParameters;
+import org.locationtech.jts.operation.distance.DistanceOp;
 import org.locationtech.jts.simplify.TopologyPreservingSimplifier;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -406,5 +407,66 @@ public class ProjectionUtils {
             log.error("Failed to increase line length", ex);
             return ls;
         }
+    }
+
+    /**
+     * Finds nearest points in 2 geometries, projecting them to local CRS first
+     */
+    public static Coordinate[] nearestPoints(CoordinateReferenceSystem localCrs,
+                                                 Geometry wgsGeometry1,
+                                                 Geometry wgsGeometry2) {
+        try {
+            Geometry projected1 = transformToLocalCRS(localCrs, wgsGeometry1);
+            Geometry projected2 = transformToLocalCRS(localCrs, wgsGeometry2);
+            Coordinate[] nearestPointsLocal = DistanceOp.nearestPoints(projected1, projected2);
+            return new Coordinate[]{
+                    transformFromLocalCRS(localCrs, nearestPointsLocal[0]),
+                    transformFromLocalCRS(localCrs, nearestPointsLocal[1])
+            };
+        } catch (Exception ex) {
+            log.error("Failed to find nearest points", ex);
+            return new Coordinate[] {new Coordinate(), new Coordinate()};
+        }
+    }
+
+    public static Coordinate[] nearestPoints(Geometry wgsGeometry1, Geometry wgsGeometry2) {
+        if (wgsGeometry1.isEmpty() || wgsGeometry2.isEmpty()) {
+            log.error("nearestPoints called with empty geometry");
+            return new Coordinate[] {new Coordinate(), new Coordinate()};
+        }
+        try {
+            return nearestPoints(getLocalCRS(wgsGeometry1), wgsGeometry1, wgsGeometry2);
+        } catch (Exception ex) {
+            log.error("Failed to find nearest points", ex);
+            return new Coordinate[] {new Coordinate(), new Coordinate()};
+        }
+    }
+
+    public static Coordinate nearestPoint(Coordinate wgsCoordinate, Geometry wgsGeometry) {
+        return nearestPoints(
+                GeometryUtils.makePoint(wgsCoordinate),
+                wgsGeometry
+        )[1];
+    }
+
+    public static Coordinate nearestPoint(CoordinateReferenceSystem localCrs,
+                                          Coordinate wgsCoordinate,
+                                          Geometry wgsGeometry) {
+        return nearestPoints(
+                localCrs,
+                GeometryUtils.makePoint(wgsCoordinate),
+                wgsGeometry
+        )[1];
+    }
+
+    public static double getDistance(Coordinate first, Coordinate second) {
+        return getDistance(first.y, first.x, second.y, second.x);
+    }
+
+    public static double getDistance(double lat1, double lon1, double lat2, double lon2) {
+        GeodeticCalculator gc = new GeodeticCalculator();
+        gc.setStartingGeographicPoint(lon1, lat1);
+        gc.setDestinationGeographicPoint(lon2, lat2);
+        return gc.getOrthodromicDistance();
     }
 }
