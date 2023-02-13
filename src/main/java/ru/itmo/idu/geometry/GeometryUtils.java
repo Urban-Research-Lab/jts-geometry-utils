@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Helper methods for working with JTS Geometry class
@@ -241,18 +240,6 @@ public class GeometryUtils {
         }
 
         return segmentList;
-    }
-
-
-    /**
-     * Intersects with guard against TPEs, returns false if TPE occurs
-     */
-    public static boolean safeIntersects(Geometry first, Geometry second) {
-        try {
-            return first.intersects(second);
-        } catch (TopologyException tpe) {
-            return false;
-        }
     }
 
     public static double angleToAzimuth(double angle) {
