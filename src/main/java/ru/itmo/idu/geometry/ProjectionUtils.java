@@ -459,6 +459,24 @@ public class ProjectionUtils {
         )[1];
     }
 
+    public static double getDistance(Geometry wgsGeometry1, Geometry wgsGeometry2) {
+        if (wgsGeometry1.isEmpty() || wgsGeometry2.isEmpty()) {
+            return 0.0;
+        }
+        Coordinate[] nearestPoints = nearestPoints(wgsGeometry1, wgsGeometry2);
+        return getDistance(nearestPoints[0], nearestPoints[1]);
+    }
+
+    public static double getDistance(CoordinateReferenceSystem localCrs,
+                                     Geometry wgsGeometry1,
+                                     Geometry wgsGeometry2) {
+        if (wgsGeometry1.isEmpty() || wgsGeometry2.isEmpty()) {
+            return 0.0;
+        }
+        Coordinate[] nearestPoints = nearestPoints(localCrs, wgsGeometry1, wgsGeometry2);
+        return getDistance(nearestPoints[0], nearestPoints[1]);
+    }
+
     public static double getDistance(Coordinate first, Coordinate second) {
         return getDistance(first.y, first.x, second.y, second.x);
     }

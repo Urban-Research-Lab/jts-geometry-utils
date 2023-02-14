@@ -123,4 +123,24 @@ public class ProjectionUtilsTest {
         assertEquals(25.5, ProjectionUtils.getDistance(end, start), 0.001);
         assertEquals(0.0, ProjectionUtils.getDistance(start, start), 0.001);
     }
+
+    @Test
+    void testDistanceGeometries() {
+        GeodeticCalculator gc = new GeodeticCalculator();
+        gc.setStartingGeographicPoint(20.10, -10.15);
+        gc.setDirection(90, 10.0);
+
+        Coordinate start = new Coordinate(gc.getStartingGeographicPoint().getX(), gc.getStartingGeographicPoint().getY());
+        Coordinate end = new Coordinate(gc.getDestinationGeographicPoint().getX(), gc.getDestinationGeographicPoint().getY());
+
+        final Geometry startCircle = ProjectionUtils.makeCircle(start, 2.0);
+        final Geometry endCircle = ProjectionUtils.makeCircle(end, 2.0);
+        assertEquals(6.0, ProjectionUtils.getDistance(startCircle, endCircle), 0.1);
+        assertEquals(0.0, ProjectionUtils.getDistance(startCircle, ProjectionUtils.bufferProjected(startCircle, 1.0)), 0.1);
+
+        final Geometry empty = geometryFactory.createEmpty(2);
+        assertEquals(0.0, ProjectionUtils.getDistance(empty, endCircle), 0.1);
+
+
+    }
 }
