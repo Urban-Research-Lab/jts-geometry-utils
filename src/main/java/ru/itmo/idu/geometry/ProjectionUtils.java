@@ -174,9 +174,17 @@ public class ProjectionUtils {
      * Builds a correct round buffer around given point. Suitable for making circular areas on the map look really circular
      * (as a circle in WGS84 coordinates will not be a circle on the map but an ellipse)
      */
+    public static Geometry makePointBuffer(double x, double y, double meters) {
+        return makePointBuffer(new Coordinate(x, y), meters);
+    }
+
     public static Geometry makePointBuffer(Coordinate coord, double meters) {
         Point point = makePoint(coord);
         return bufferProjected(point, meters);
+    }
+
+    public static Geometry makePointBuffer(CoordinateReferenceSystem crs, double x, double y, double meters) {
+        return makePointBuffer(crs, new Coordinate(x, y), meters);
     }
 
     public static Geometry makePointBuffer(CoordinateReferenceSystem crs, Coordinate coord, double meters) {
