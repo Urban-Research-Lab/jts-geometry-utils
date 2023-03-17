@@ -1,6 +1,7 @@
 package ru.itmo.idu.geometry;
 
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.geom.TopologyException;
 import org.locationtech.jts.geom.prep.PreparedGeometry;
 import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
@@ -10,12 +11,16 @@ import static ru.itmo.idu.geometry.GeometryUtils.geometryFactory;
 
 public class SafeOperations {
 
-    public static Geometry fixGeometry(Geometry geom) {
+    private static Geometry fixGeometry(Geometry geom) {
         if (geom == null) {
             return geometryFactory.createEmpty(2);
         }
         if (geom.isEmpty()) {
             return geom;
+        }
+        if (geom instanceof GeometryCollection) {
+            // many geometry operations do not work properly on geometry collection arguments, but work on multipolygons
+            geom = geom.buffer(0.0);
         }
         IsValidOp validOp = new IsValidOp(geom);
         if (validOp.isValid()) {

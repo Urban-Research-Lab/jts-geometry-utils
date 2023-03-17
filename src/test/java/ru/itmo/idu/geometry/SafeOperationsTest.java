@@ -3,6 +3,7 @@ package ru.itmo.idu.geometry;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.geojson.feature.FeatureJSON;
 import org.junit.jupiter.api.Test;
+import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.opengis.feature.Feature;
 
@@ -87,6 +88,20 @@ public class SafeOperationsTest {
         Geometry geom4 = readGeometryFromGeoJSON("polygonIntersects2.json");
         assertTrue(SafeOperations.safeUnion(geom1, geom2).isEmpty());
         assertFalse(SafeOperations.safeUnion(geom3, geom4).isEmpty());
+    }
+
+    @Test
+    public void safeUnionWorksOnGeometryCollections() {
+        Geometry first = ProjectionUtils.makePointBuffer(new Coordinate(10, 10), 10.0);
+        Geometry second = ProjectionUtils.makePointBuffer(new Coordinate(11, 11), 10.0);
+        Geometry third = ProjectionUtils.makePointBuffer(new Coordinate(12, 12), 10.0);
+
+        Geometry firstCollection = geometryFactory.createGeometryCollection(new Geometry[]{first, second});
+        Geometry secondCollection = geometryFactory.createGeometryCollection(new Geometry[]{third});
+
+        Geometry result = SafeOperations.safeUnion(firstCollection, secondCollection);
+
+        assertEquals(3, result.getNumGeometries());
     }
 
     protected Geometry readGeometryFromGeoJSON(String resourceName) throws IOException {
