@@ -179,6 +179,11 @@ public class ProjectionUtils {
         return bufferProjected(point, meters);
     }
 
+    public static Geometry makePointBuffer(CoordinateReferenceSystem crs, Coordinate coord, double meters) {
+        Point point = makePoint(coord);
+        return bufferProjected(crs, point, meters);
+    }
+
     /**
      * Converts given envelope coordinates from WGS84 to Mercator
      */
