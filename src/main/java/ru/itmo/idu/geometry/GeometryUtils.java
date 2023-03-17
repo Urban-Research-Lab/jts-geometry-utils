@@ -294,4 +294,37 @@ public class GeometryUtils {
         geometryCollection = geometryCollection.union();
         return geometryCollection;
     }
+
+    /**
+     * This method works with geometry collections, while default JTS method does not
+     * Can be slow
+     */
+    public static Geometry geometryCollectionDifference(Geometry first, Geometry second) {
+        if (first.isEmpty()) {
+            return first;
+        }
+        if (second.isEmpty()) {
+            return first;
+        }
+        List<Geometry> results = new ArrayList<>(first.getNumGeometries());
+        for (int geomIdx1 = 0; geomIdx1 < first.getNumGeometries(); ++geomIdx1) {
+            Geometry part = first.getGeometryN(geomIdx1);
+            for (int geomIdx2 = 0; geomIdx2 < second.getNumGeometries(); ++geomIdx2) {
+                part = SafeOperations.safeDifference(part, second.getGeometryN(geomIdx2));
+                if (part.isEmpty()) {
+                    break;
+                }
+            }
+            if (!part.isEmpty()) {
+                results.add(part);
+            }
+        }
+        if (results.isEmpty()) {
+            return geometryFactory.createEmpty(first.getDimension());
+        }
+        if (results.size() == 1) {
+            return results.get(0);
+        }
+        return geometryFactory.createGeometryCollection(results.toArray(new Geometry[results.size()]));
+    }
 }

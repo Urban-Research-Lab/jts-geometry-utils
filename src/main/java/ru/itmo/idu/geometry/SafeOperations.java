@@ -1,7 +1,7 @@
 package ru.itmo.idu.geometry;
 
 import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.*;
+import org.locationtech.jts.geom.TopologyException;
 import org.locationtech.jts.geom.prep.PreparedGeometry;
 import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
 import org.locationtech.jts.operation.valid.IsValidOp;
@@ -92,11 +92,22 @@ public class SafeOperations {
 
     public static Geometry safeDifference(PreparedGeometry geom1, Geometry geom2, double bufferMeters) {
         Geometry geom2Fixed = fixGeometry(geom2);
+        final boolean isGeometryCollection = geom1.getGeometry().getNumGeometries() > 1 || geom2.getNumGeometries() > 1;
         try {
-            return geom1.getGeometry().difference(geom2Fixed);
+            if (isGeometryCollection) {
+                return GeometryUtils.geometryCollectionDifference(geom1.getGeometry(), geom2);
+            } else {
+                return geom1.getGeometry().difference(geom2Fixed);
+            }
         } catch (TopologyException tpe) {
             try {
-                return ProjectionUtils.bufferProjected(geom1.getGeometry(), bufferMeters).difference(geom2Fixed);
+
+                final Geometry slightlyBufferedFirst = ProjectionUtils.bufferProjected(geom1.getGeometry(), bufferMeters);
+                if (isGeometryCollection) {
+                    return slightlyBufferedFirst.difference(geom2Fixed);
+                } else {
+                    return slightlyBufferedFirst.difference(geom2Fixed);
+                }
             } catch (TopologyException tpe2) {
                 return geometryFactory.createEmpty(2);
             }
