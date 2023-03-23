@@ -15,6 +15,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import static java.util.Collections.emptyList;
+
 /**
  * Helper methods for working with JTS Geometry class
  */
@@ -327,4 +329,25 @@ public class GeometryUtils {
         }
         return geometryFactory.createGeometryCollection(results.toArray(new Geometry[results.size()]));
     }
+
+    /**
+     * Turns GeometryCollection of arbitrary depth (having other GCs as members) into a flat list of simple geometries (ones
+     * that have getNumGeometries() = 1)
+     */
+    public static List<Geometry> flattenGeometry(Geometry geom) {
+        if (geom == null || geom.isEmpty()) {
+            return emptyList();
+        }
+        List<Geometry> rz = new ArrayList<>(geom.getNumGeometries());
+        for (int geomIdx = 0; geomIdx < geom.getNumGeometries(); ++geomIdx) {
+            Geometry part = geom.getGeometryN(geomIdx);
+            if (part.getNumGeometries() > 1) {
+                rz.addAll(flattenGeometry(part));
+            } else {
+                rz.add(part);
+            }
+        }
+        return rz;
+    }
+
 }

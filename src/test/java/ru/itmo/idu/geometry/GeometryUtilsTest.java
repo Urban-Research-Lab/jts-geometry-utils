@@ -93,4 +93,27 @@ public class GeometryUtilsTest {
         ls = GeometryUtils.makeLine(new double[][]{{1.0, 1.0, 100.0}, {1.0, 1.0, 200.0}});
         assertEquals(200.0, ls.getCoordinates()[1].z);
     }
+
+    @Test
+    public void testFlattenGeometry() {
+        List<Geometry> rz = GeometryUtils.flattenGeometry(null);
+        assertTrue(rz.isEmpty());
+
+        rz = GeometryUtils.flattenGeometry(GeometryUtils.geometryFactory.createEmpty(2));
+        assertTrue(rz.isEmpty());
+
+        rz = GeometryUtils.flattenGeometry(GeometryUtils.makePoint(10, 10));
+        assertEquals(1, rz.size());
+
+        rz = GeometryUtils.flattenGeometry(GeometryUtils.geometryFactory.createGeometryCollection(new Geometry[]{
+                GeometryUtils.makePoint(1, 1),
+                GeometryUtils.geometryFactory.createGeometryCollection(new Geometry[]{
+                        GeometryUtils.makePoint(3, 3),
+                        GeometryUtils.makePoint(5, 5),
+                })
+        }));
+
+        assertEquals(3, rz.size());
+        assertEquals(9, rz.stream().mapToDouble(it -> it.getCoordinate().x).sum(), 0.001);
+    }
 }
