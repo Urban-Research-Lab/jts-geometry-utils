@@ -350,4 +350,33 @@ public class GeometryUtils {
         return rz;
     }
 
+    public static Geometry tryConvertGCToCorrectSubclass(Geometry geometryCollection) {
+        if (geometryCollection.getClass() != GeometryCollection.class) {
+            return geometryCollection;
+        }
+        boolean hasOnlyPoints = true;
+        boolean hasOnlyLines = true;
+        boolean hasOnlyPolygons = true;
+        List<Geometry> flattened = flattenGeometry(geometryCollection);
+        for (Geometry g : flattened) {
+            if (!(g instanceof Point)) {
+                hasOnlyPoints = false;
+            }
+            if (!(g instanceof LineString)) {
+                hasOnlyLines = false;
+            }
+            if (!(g instanceof Polygon)) {
+                hasOnlyPolygons = false;
+            }
+        }
+        if (hasOnlyPoints) {
+            return geometryFactory.createMultiPoint(flattened.stream().map(it -> (Point)it).toArray(Point[]::new));
+        } else if (hasOnlyLines) {
+            return geometryFactory.createMultiLineString(flattened.stream().map(it -> (LineString)it).toArray(LineString[]::new));
+        } else if (hasOnlyPolygons) {
+            return geometryFactory.createMultiPolygon(flattened.stream().map(it -> (Polygon)it).toArray(Polygon[]::new));
+        }
+        return geometryCollection;
+    }
+
 }

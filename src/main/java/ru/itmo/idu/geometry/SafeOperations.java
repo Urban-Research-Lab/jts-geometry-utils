@@ -18,9 +18,16 @@ public class SafeOperations {
         if (geom.isEmpty()) {
             return geom;
         }
-        if (geom instanceof GeometryCollection) {
+        if (geom.getClass() == GeometryCollection.class) {
             // many geometry operations do not work properly on geometry collection arguments, but work on multipolygons
-            geom = geom.buffer(0.0);
+            // do not use instanceof since MultiLineString is also a GeometryCollection, but buffering will turn it into empty polygon
+            geom = GeometryUtils.tryConvertGCToCorrectSubclass(geom);
+
+            if (geom.getClass() == GeometryCollection.class) {
+                // failed to covert, GC contains features of different types
+                // this can still provide invalid result if GC contains both polygons and lines - lines will be wiped out
+                geom = geom.buffer(0.0);
+            }
         }
         IsValidOp validOp = new IsValidOp(geom);
         if (validOp.isValid()) {

@@ -1,10 +1,7 @@
 package ru.itmo.idu.geometry;
 
 import org.junit.jupiter.api.Test;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -115,5 +112,24 @@ public class GeometryUtilsTest {
 
         assertEquals(3, rz.size());
         assertEquals(9, rz.stream().mapToDouble(it -> it.getCoordinate().x).sum(), 0.001);
+    }
+
+    @Test
+    public void testConvertGeometryCollections() {
+        Geometry gc = GeometryUtils.geometryFactory.createGeometryCollection(new Geometry[]{
+            GeometryUtils.makeLine(new Coordinate(1, 1), new Coordinate(2, 2)),
+            GeometryUtils.makeLine(new Coordinate(1, 1), new Coordinate(2, 2)),
+        });
+
+        Geometry rz = GeometryUtils.tryConvertGCToCorrectSubclass(gc);
+        assertEquals(MultiLineString.class, rz.getClass());
+        assertEquals(2, rz.getNumGeometries());
+
+        gc = GeometryUtils.geometryFactory.createGeometryCollection(new Geometry[]{
+                GeometryUtils.makePoint(new Coordinate(1, 1)),
+                GeometryUtils.makePoint(new Coordinate(1, 1)).buffer(1),
+        });
+        rz = GeometryUtils.tryConvertGCToCorrectSubclass(gc);
+        assertEquals(rz, gc);
     }
 }

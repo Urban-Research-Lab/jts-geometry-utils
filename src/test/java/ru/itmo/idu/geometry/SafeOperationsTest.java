@@ -5,6 +5,7 @@ import org.geotools.geojson.feature.FeatureJSON;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.LineString;
 import org.opengis.feature.Feature;
 
 import java.io.IOException;
@@ -56,6 +57,20 @@ public class SafeOperationsTest {
         Geometry geom3 = readGeometryFromGeoJSON("polygonIntersects1.json");
         Geometry geom4 = readGeometryFromGeoJSON("polygonIntersects2.json");
         assertFalse(SafeOperations.safeDifference(geom3, geom4).isEmpty());
+    }
+
+    @Test
+    public void safeDifferenceMultiLineStringNotBufferedToEmpty() {
+        Geometry mls = geometryFactory.createMultiLineString(
+                new LineString[]{
+                GeometryUtils.makeLine(new Coordinate(0, 0), new Coordinate(10, 0)),
+                GeometryUtils.makeLine(new Coordinate(10, 0), new Coordinate(20, 0))
+        });
+
+        Geometry circle = GeometryUtils.makePoint(5, 0).buffer(3.0);
+
+        Geometry rz = SafeOperations.safeDifference(mls, circle);
+        assertFalse(rz.isEmpty());
     }
 
     @Test
