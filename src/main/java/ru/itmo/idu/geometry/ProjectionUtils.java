@@ -155,17 +155,17 @@ public class ProjectionUtils {
     /**
      * Projects given line to 2d plane and calculates its length in meters
      */
-    public static double calcLength(LineString line) {
+    public static double calcLength(Geometry geometry) {
         try {
-            if (line.isEmpty()){
-                return line.getLength();
+            if (geometry.isEmpty()){
+                return 0.0;
             } else {
-                val projed = JTS.transform(line, getLocalCRSTransform(line));
+                val projed = JTS.transform(geometry, getLocalCRSTransform(geometry));
                 return projed.getLength();
             }
         } catch (Exception ex) {
             log.error("Failed to calc area", ex);
-            return line.getLength();
+            return geometry.getLength();
         }
     }
 
