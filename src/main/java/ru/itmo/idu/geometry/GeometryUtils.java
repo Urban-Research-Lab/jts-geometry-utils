@@ -6,6 +6,7 @@ import org.locationtech.jts.geom.impl.CoordinateArraySequence;
 import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
 import org.locationtech.jts.geom.util.LineStringExtracter;
 import org.locationtech.jts.operation.polygonize.Polygonizer;
+import org.locationtech.jts.operation.valid.IsValidOp;
 import org.locationtech.jts.operation.valid.TopologyValidationError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -197,6 +198,12 @@ public class GeometryUtils {
             }
         }
         return rz;
+    }
+
+    public static Geometry fixGeometry(Geometry geometry) {
+        IsValidOp isValidOp = new IsValidOp(geometry);
+        final TopologyValidationError validationError = isValidOp.getValidationError();
+        return fixGeometry(geometry, validationError);
     }
 
     /**
