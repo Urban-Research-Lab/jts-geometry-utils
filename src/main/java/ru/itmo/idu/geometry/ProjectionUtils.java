@@ -225,6 +225,16 @@ public class ProjectionUtils {
         }
     }
 
+    public static Coordinate transformToMercator(Coordinate coordinate) {
+        try {
+            Coordinate dest = new Coordinate();
+            return JTS.transform(coordinate, dest, latLonToXY);
+        } catch (TransformException e) {
+            log.error("Failed to transform", e);
+            return coordinate;
+        }
+    }
+
     public static Geometry transformToLocalCRS(Geometry geometry) throws FactoryException, TransformException {
         if (geometry.isEmpty()){
             return geometry;
@@ -313,8 +323,18 @@ public class ProjectionUtils {
         try {
             return JTS.transform(geometry, xyToLatLon);
         } catch (TransformException e) {
-            log.error("Failed to transsform", e);
+            log.error("Failed to transform", e);
             return geometry;
+        }
+    }
+
+    public static Coordinate transformFromMercator(Coordinate coordinate) {
+        try {
+            Coordinate dest = new Coordinate();
+            return JTS.transform(coordinate, dest, xyToLatLon);
+        } catch (TransformException e) {
+            log.error("Failed to transform", e);
+            return coordinate;
         }
     }
 
