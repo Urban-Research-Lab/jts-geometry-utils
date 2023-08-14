@@ -239,10 +239,11 @@ public class GeometryUtils {
             return segmentList;
         }
 
-        for(int i = 0; i < geometry.getCoordinates().length -1; ++i) {
+        Geometry normalized = geometry.norm();
+        for(int i = 0; i < normalized.getCoordinates().length -1; ++i) {
             LineSegment segment = new LineSegment(
-                    geometry.getCoordinates()[i],
-                    geometry.getCoordinates()[i + 1]
+                    normalized.getCoordinates()[i],
+                    normalized.getCoordinates()[i + 1]
             );
 
             segmentList.add(segment);
