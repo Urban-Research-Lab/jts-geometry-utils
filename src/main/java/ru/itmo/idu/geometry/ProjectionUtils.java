@@ -415,9 +415,23 @@ public class ProjectionUtils {
         return makeCircle(coordinate, radius, bufferParameters);
     }
 
+    public static Geometry makeCircle(CoordinateReferenceSystem crs, Coordinate coordinate, double radius) {
+        BufferParameters bufferParameters = new BufferParameters(4, BufferParameters.CAP_ROUND, BufferParameters.JOIN_ROUND, BufferParameters.DEFAULT_MITRE_LIMIT);
+        return makeCircle(crs, coordinate, radius, bufferParameters);
+    }
+
     public static Geometry makeCircle(Coordinate coordinate, double radius, BufferParameters bufferParameters) {
         return bufferProjected(GeometryUtils.makePoint(coordinate), radius, bufferParameters);
     }
+
+
+    public static Geometry makeCircle(CoordinateReferenceSystem crs,
+                                      Coordinate coordinate,
+                                      double radius,
+                                      BufferParameters bufferParameters) {
+        return bufferProjected(crs, GeometryUtils.makePoint(coordinate), radius, bufferParameters);
+    }
+
 
     public static double calcAzimuth(Coordinate c1, Coordinate c2) {
         GeodeticCalculator gc = new GeodeticCalculator();
