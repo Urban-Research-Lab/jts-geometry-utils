@@ -135,6 +135,20 @@ public class ProjectionUtils {
         return transformFromMercator(projectedSimplified);
     }
 
+    public static double calcArea(CoordinateReferenceSystem crs, Geometry geometry) {
+        if (geometry.isEmpty()) {
+            return 0.0;
+        }
+        Geometry projected = null;
+        try {
+            projected = transformToLocalCRS(crs, geometry);
+        } catch (Exception e) {
+            log.error("Failed to calc area", e);
+            return geometry.getArea();
+        }
+        return projected.getArea();
+    }
+
     /**
      * Projects given polygon to 2d plane and calculates its area in square meters
      */
@@ -149,6 +163,20 @@ public class ProjectionUtils {
         } catch (Exception ex) {
             log.error("Failed to calc area", ex);
             return geometry.getArea();
+        }
+    }
+
+    public static double calcLength(CoordinateReferenceSystem crs, Geometry geometry) {
+        try {
+            if (geometry.isEmpty()){
+                return 0.0;
+            } else {
+                val projed = transformToLocalCRS(crs, geometry);
+                return projed.getLength();
+            }
+        } catch (Exception ex) {
+            log.error("Failed to calc area", ex);
+            return geometry.getLength();
         }
     }
 
