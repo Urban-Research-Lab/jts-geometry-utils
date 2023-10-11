@@ -38,17 +38,17 @@ useful here as well.
 
 Main classes are:
 
-1. `Algorithms` - some complicated algorithms created for specific tasks. You probably wont need theese
-2. `CRSUtils` - methods for retrieving the most precise local CRS for a geometry in WGS84. This local CRS can be then
+1`CRSUtils` - methods for retrieving the most precise local CRS for a geometry in WGS84. This local CRS can be then
    used for precise area calculation or other tasks that require coordinates to be in meters, not in degrees.
-3. `GeometryUtils` - helper methods for creating and managing JTS geometry objects.
-4. `InvertCoordinateFilter` - class that swaps X and Y coordinates. Is really helpful as some tools and some CRS specify lat-lon order
+2`GeometryUtils` - helper methods for creating and managing JTS geometry objects.
+3`InvertCoordinateFilter` - class that swaps X and Y coordinates. Is really helpful as some tools and some CRS specify lat-lon order
    while others use lon-lat
-5. `ProjectionUtils` - methods for projecting different types of geometries to another coordinate system. Common geometry operations, like
+4`ProjectionUtils` - methods for projecting different types of geometries to another coordinate system. Common geometry operations, like
    buffer, can not be done in lat-lon coords (as 1 degree of latitude and longitude has different length in meters on different points on Earth surface).
    This class contains wrappers that first project geometries to local CRS, do the operation and then reproject result back to WGS84 if necessary.
-6. `SafeOperations` - methods that try not to throw TopologyException. They copy Geometry methods like `intersects`, `contains` etc.,
+5`SafeOperations` - methods that try not to throw TopologyException. They copy Geometry methods like `intersects`, `contains` etc.,
 but also validate geometry and if operation still fails - try to repeat it with a slightly buffered version, to prevent annoying TPEs
+6`Algorithms` - some complicated algorithms created for specific tasks. You probably wont need theese
 
 ## Usage
 
