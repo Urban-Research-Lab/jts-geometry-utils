@@ -77,6 +77,14 @@ public class GeometryUtils {
         return new Point(new CoordinateArraySequence(new Coordinate[]{coordinate}), geometryFactory);
     }
 
+    public static GeometryCollection makeGeometryCollection(Geometry... geometries) {
+        return geometryFactory.createGeometryCollection(geometries);
+    }
+
+    public static GeometryCollection makeGeometryCollection(Collection<Geometry> geometries) {
+        return geometryFactory.createGeometryCollection(geometries.toArray(Geometry[]::new));
+    }
+
     /**
      * Checks if given list of coordinates is a closed ring (last point equals to the first one). Adds copy of first point
      * to the end if necessary.
