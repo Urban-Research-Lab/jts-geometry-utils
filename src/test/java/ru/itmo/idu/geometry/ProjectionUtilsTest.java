@@ -6,6 +6,7 @@ import org.geotools.referencing.GeodeticCalculator;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.LineSegment;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.operation.buffer.BufferParameters;
 import org.opengis.feature.Feature;
@@ -29,6 +30,26 @@ public class ProjectionUtilsTest {
         assertTrue(ProjectionUtils.transformToLocalCRS(localCrs, geom1).isEmpty());
         assertTrue(ProjectionUtils.transformFromLocalCRS(localCrs, geom1).isEmpty());
         assertTrue(ProjectionUtils.transformFromLocalCRS(geom1).isEmpty());
+    }
+
+    @Test
+    public void transformToLocalCRSSegment() throws FactoryException {
+        GeodeticCalculator gc = new GeodeticCalculator();
+        gc.setStartingGeographicPoint(30, 59);
+        gc.setDirection(0, 100);
+        LineSegment ls = new LineSegment(
+                new Coordinate(30, 59),
+                new Coordinate(gc.getDestinationGeographicPoint().getX(), gc.getDestinationGeographicPoint().getY())
+        );
+        CoordinateReferenceSystem localCrs = CRSUtils.getLocalCRS(ls.p0);
+        LineSegment local = ProjectionUtils.transformToLocalCRS(localCrs, ls);
+        assertEquals(local.getLength(), 100, 0.1);
+        LineSegment backToGlobal = ProjectionUtils.transformFromLocalCRS(localCrs, local);
+
+        assertEquals(ls.p0.x, backToGlobal.p0.x, 0.000001);
+        assertEquals(ls.p0.y, backToGlobal.p0.y, 0.000001);
+        assertEquals(ls.p1.x, backToGlobal.p1.x, 0.000001);
+        assertEquals(ls.p1.y, backToGlobal.p1.y, 0.000001);
     }
 
     @Test

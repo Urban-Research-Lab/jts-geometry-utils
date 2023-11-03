@@ -1,8 +1,8 @@
 package ru.itmo.idu.geometry;
 
-import lombok.val;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Point;
 import org.opengis.referencing.FactoryException;
@@ -31,7 +31,11 @@ public class CRSUtils {
 
     public static CoordinateReferenceSystem getLocalCRS(Geometry geometry) throws FactoryException {
         Point centroid = geometry.getCentroid();
-        String code = "AUTO:42001," + centroid.getX() + "," + centroid.getY();
+        return getLocalCRS(geometry.getCentroid().getCoordinate());
+    }
+
+    public static CoordinateReferenceSystem getLocalCRS(Coordinate coordinate) throws FactoryException {
+        String code = "AUTO:42001," + coordinate.getX() + "," + coordinate.getY();
         return CRS.decode(code);
     }
 }

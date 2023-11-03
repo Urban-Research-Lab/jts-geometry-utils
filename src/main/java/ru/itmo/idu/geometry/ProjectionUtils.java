@@ -320,6 +320,28 @@ public class ProjectionUtils {
         }
     }
 
+    public static LineSegment transformToLocalCRS(CoordinateReferenceSystem crs, LineSegment segment) {
+        Coordinate start = transformToLocalCRS(crs, segment.p0);
+        Coordinate end = transformToLocalCRS(crs, segment.p1);
+        return new LineSegment(start, end);
+    }
+
+    public static LineSegment transformFromLocalCRS(CoordinateReferenceSystem crs, LineSegment segment) {
+        Coordinate start = transformFromLocalCRS(crs, segment.p0);
+        Coordinate end = transformFromLocalCRS(crs, segment.p1);
+        return new LineSegment(start, end);
+    }
+
+    public static LineSegment transformToLocalCRS(LineSegment segment) {
+        try {
+            CoordinateReferenceSystem crs = CRSUtils.getLocalCRS(segment.p0);
+            return transformToLocalCRS(crs, segment);
+        } catch (FactoryException e) {
+            log.error("Failed to transform", e);
+            return segment;
+        }
+    }
+
     public static Geometry transformFromLocalCRS(CoordinateReferenceSystem crs, Geometry geometry) {
         if (geometry.isEmpty()) {
             return geometry;
