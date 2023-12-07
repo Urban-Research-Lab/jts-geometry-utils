@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -131,5 +132,40 @@ public class GeometryUtilsTest {
         });
         rz = GeometryUtils.tryConvertGCToCorrectSubclass(gc);
         assertEquals(rz, gc);
+    }
+
+    @Test
+    public void testCreateLine() {
+        final Coordinate start = new Coordinate(0, 1);
+        final Coordinate end = new Coordinate(1, 2);
+        var line = GeometryUtils.makeLine(start, end);
+        assertEquals(2, line.getCoordinates().length);
+        assertEquals(0.0, line.getCoordinates()[0].getX());
+        assertEquals(2.0, line.getCoordinates()[1].getY());
+
+        var line2 = GeometryUtils.makeLine(List.of(start, end));
+        assertEquals(line, line2);
+
+        var line3 = GeometryUtils.makeLine(start.x, start.y, end.x, end.y);
+        assertEquals(line3, line2);
+
+        var coords = new double[][] {
+                new double[] {start.x, start.y},
+                new double[] {end.x, end.y},
+        };
+        var line4 = GeometryUtils.makeLine(coords);
+        assertEquals(line4, line);
+    }
+
+    @Test
+    public void testCreateTrivialLine() {
+        var emptyLine = GeometryUtils.makeLine(Collections.emptyList());
+        assertTrue(emptyLine.isEmpty());
+
+        final Coordinate point = new Coordinate(1, 2);
+        var singlePointLine = GeometryUtils.makeLine(List.of(point));
+        assertEquals(2, singlePointLine.getCoordinates().length);
+        assertEquals(point, singlePointLine.getCoordinates()[0]);
+        assertEquals(point, singlePointLine.getCoordinates()[1]);
     }
 }

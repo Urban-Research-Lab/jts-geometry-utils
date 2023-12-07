@@ -42,6 +42,11 @@ public class GeometryUtils {
     }
 
     public static LineString makeLine(Coordinate... coordinates) {
+        if (coordinates.length == 0) {
+            return GeometryUtils.geometryFactory.createLineString();
+        } else if (coordinates.length == 1) {
+            return makeLine(coordinates[0], coordinates[0]);
+        }
         return new LineString(
                 new CoordinateArraySequence(
                         coordinates
@@ -49,8 +54,16 @@ public class GeometryUtils {
         );
     }
 
+    public static LineString makeLine(List<Coordinate> coordinates) {
+        return makeLine(coordinates.toArray(Coordinate[]::new));
+    }
+
+    public static LineString makeLine(double x1, double y1, double x2, double y2) {
+        return makeLine(new Coordinate(x1, y1), new Coordinate(x2, y2));
+    }
+
     /**
-     * Creates a line from a list of x,y points
+     * Creates a line from a list of x,y points or x, y, z
      */
     public static LineString makeLine(double[][] latLonPoints) {
         Coordinate[] coordinates = new Coordinate[latLonPoints.length];
@@ -99,6 +112,21 @@ public class GeometryUtils {
         return rz;
     }
 
+    /**
+     * Checks if given list forms a closed ring (last coordinate equals to the first one). Copies first point to the end
+     * of the list if not
+     * Returns a copy of the original list.
+     * Original list is not modified.
+     */
+    public static List<Coordinate> closeRing(List<Coordinate> coordinates) {
+        List<Coordinate> rz = new ArrayList<>(coordinates);
+        if (coordinates.get(0).equals2D(coordinates.get(coordinates.size() - 1))) {
+            return rz;
+        }
+        rz.add(coordinates.get(0));
+        return rz;
+    }
+
     public static Polygon makePolygon(Coordinate... coordinates) {
 
         return new Polygon(
@@ -113,8 +141,24 @@ public class GeometryUtils {
         );
     }
 
+    public static Polygon makePolygon(List<Coordinate> coordinates) {
+        return new Polygon(
+                new LinearRing(
+                        new CoordinateArraySequence(
+                                closeRing(coordinates).toArray(Coordinate[]::new)
+                        ),
+                        geometryFactory
+                ),
+                null,
+                geometryFactory
+        );
+    }
 
 
+    /**
+     * Receives a collection of lines (or any other geometries). Extracts all polygons created by intersections of these lines
+     */
+    @SuppressWarnings("rawtypes")
     public static Geometry polygonize(Geometry geometry) {
         List lines = LineStringExtracter.getLines(geometry);
         Polygonizer polygonizer = new Polygonizer();
@@ -139,7 +183,7 @@ public class GeometryUtils {
         Geometry polys = polygonize(nodedLinework);
 
         // Only keep polygons which are inside the input
-        List<Geometry> output = new ArrayList();
+        List<Geometry> output = new ArrayList<>();
         for (int i = 0; i < polys.getNumGeometries(); i++) {
             Polygon candpoly = (Polygon) polys.getGeometryN(i);
             if (poly.contains(candpoly.getInteriorPoint())) {
@@ -230,7 +274,7 @@ public class GeometryUtils {
                 val holesCount = polygon.getNumInteriorRing();
                 var newPolygon = new Polygon(exterior, null, geometryFactory);
                 for (int holeIdx = 0; holeIdx < holesCount; ++holeIdx) {
-                    val hole = new Polygon((LinearRing)polygon.getInteriorRingN(holeIdx), null, geometryFactory);
+                    val hole = new Polygon(polygon.getInteriorRingN(holeIdx), null, geometryFactory);
                     newPolygon = (Polygon) (newPolygon.difference(hole));
                 }
                 return newPolygon;
@@ -343,7 +387,7 @@ public class GeometryUtils {
         if (results.size() == 1) {
             return results.get(0);
         }
-        return geometryFactory.createGeometryCollection(results.toArray(new Geometry[results.size()]));
+        return geometryFactory.createGeometryCollection(results.toArray(Geometry[]::new));
     }
 
     /**
