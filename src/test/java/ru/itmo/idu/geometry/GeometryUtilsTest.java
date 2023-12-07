@@ -168,4 +168,12 @@ public class GeometryUtilsTest {
         assertEquals(point, singlePointLine.getCoordinates()[0]);
         assertEquals(point, singlePointLine.getCoordinates()[1]);
     }
+
+    @Test
+    public void testCreateRing() {
+        var ring = GeometryUtils.makeRing(new Coordinate(0, 0), new Coordinate(1, 1));
+        assertEquals(3, ring.getCoordinates().length);
+        assertEquals(0.0, ring.getCoordinates()[2].x, 0.1);
+        assertEquals(1.0, ring.getCoordinates()[1].x, 0.1);
+    }
 }

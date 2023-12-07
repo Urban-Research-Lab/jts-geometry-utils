@@ -143,13 +143,32 @@ public class GeometryUtils {
 
     public static Polygon makePolygon(List<Coordinate> coordinates) {
         return new Polygon(
-                new LinearRing(
-                        new CoordinateArraySequence(
-                                closeRing(coordinates).toArray(Coordinate[]::new)
-                        ),
-                        geometryFactory
-                ),
+                makeRing(coordinates),
                 null,
+                geometryFactory
+        );
+    }
+
+    public static LinearRing makeRing(List<Coordinate> coordinates) {
+        if (coordinates.isEmpty()) {
+            return GeometryUtils.geometryFactory.createLinearRing();
+        }
+        return  new LinearRing(
+                new CoordinateArraySequence(
+                        closeRing(coordinates).toArray(Coordinate[]::new)
+                ),
+                geometryFactory
+        );
+    }
+
+    public static LinearRing makeRing(Coordinate... coordinates) {
+        if (coordinates.length == 0) {
+            return GeometryUtils.geometryFactory.createLinearRing();
+        }
+        return  new LinearRing(
+                new CoordinateArraySequence(
+                        closeRing(coordinates)
+                ),
                 geometryFactory
         );
     }
