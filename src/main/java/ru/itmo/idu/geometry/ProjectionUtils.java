@@ -18,6 +18,9 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static ru.itmo.idu.geometry.CRSUtils.getLocalCRS;
 import static ru.itmo.idu.geometry.CRSUtils.getLocalCRSTransform;
 import static ru.itmo.idu.geometry.GeometryUtils.makePoint;
@@ -435,6 +438,28 @@ public class ProjectionUtils {
     public static Geometry makeCircle(Coordinate coordinate, double radius) {
         BufferParameters bufferParameters = new BufferParameters(4, BufferParameters.CAP_ROUND, BufferParameters.JOIN_ROUND, BufferParameters.DEFAULT_MITRE_LIMIT);
         return makeCircle(coordinate, radius, bufferParameters);
+    }
+
+    /**
+     * Makes axis-aligned rectangle with given WGS coordinates of bottom left corner and
+     * given width and height in meters
+     * Due to shape of earth surface closer to poles it may be not a real rectangle
+     */
+    public static Geometry makeAABB(Coordinate bottomLeft, double width, double height) {
+        List<Coordinate> points = new ArrayList<>(5);
+        points.add(bottomLeft);
+        GeodeticCalculator gc = new GeodeticCalculator();
+        gc.setStartingGeographicPoint(bottomLeft.x, bottomLeft.y);
+        gc.setDirection(0, height);
+        Coordinate topLeft = new Coordinate(gc.getDestinationGeographicPoint().getX(), gc.getDestinationGeographicPoint().getY());
+        points.add(topLeft);
+        gc.setStartingGeographicPoint(topLeft.x, topLeft.y);
+        gc.setDirection(90, width);
+        Coordinate topRight = new Coordinate(gc.getDestinationGeographicPoint().getX(), gc.getDestinationGeographicPoint().getY());
+        points.add(topRight);
+        Coordinate bottomRight = new Coordinate(topRight.getX(), bottomLeft.getY());
+        points.add(bottomRight);
+        return GeometryUtils.makePolygon(points);
     }
 
     public static Geometry makeCircle(CoordinateReferenceSystem crs, Coordinate coordinate, double radius) {
