@@ -4,10 +4,7 @@ import org.geotools.feature.FeatureCollection;
 import org.geotools.geojson.feature.FeatureJSON;
 import org.geotools.referencing.GeodeticCalculator;
 import org.junit.jupiter.api.Test;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.LineSegment;
-import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.*;
 import org.locationtech.jts.operation.buffer.BufferParameters;
 import org.opengis.feature.Feature;
 import org.opengis.referencing.FactoryException;
@@ -50,6 +47,19 @@ public class ProjectionUtilsTest {
         assertEquals(ls.p0.y, backToGlobal.p0.y, 0.000001);
         assertEquals(ls.p1.x, backToGlobal.p1.x, 0.000001);
         assertEquals(ls.p1.y, backToGlobal.p1.y, 0.000001);
+    }
+
+    @Test
+    public void transformLocalCRSEnvelope() throws FactoryException {
+        Geometry box = ProjectionUtils.makeAABB(new Coordinate(30, 50), 20, 10);
+        Envelope wgsEnvelope = box.getEnvelopeInternal();
+        CoordinateReferenceSystem localCRS = CRSUtils.getLocalCRS(wgsEnvelope);
+        Envelope localEnvelope = ProjectionUtils.transformToLocalCRS(localCRS, wgsEnvelope);
+        assertEquals(20, localEnvelope.getWidth(), 1);
+        assertEquals(10, localEnvelope.getHeight(), 1);
+        Envelope wgsBack = ProjectionUtils.transformFromLocalCRS(localCRS, localEnvelope);
+        assertEquals(wgsBack.getMaxX(), wgsEnvelope.getMaxX(), 1);
+        assertEquals(wgsBack.getMinY(), wgsEnvelope.getMinY(), 1);
     }
 
     @Test

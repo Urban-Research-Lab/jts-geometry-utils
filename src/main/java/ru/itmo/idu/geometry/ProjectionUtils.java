@@ -266,6 +266,35 @@ public class ProjectionUtils {
         }
     }
 
+    public static Envelope transformToLocalCRS(Envelope latLonEnvelope) {
+        try {
+            return transformToLocalCRS(CRSUtils.getLocalCRS(latLonEnvelope), latLonEnvelope);
+        } catch (FactoryException e) {
+            log.error("Failed to transform", e);
+            return latLonEnvelope;
+        }
+    }
+
+    /**
+     * Converts given envelope coordinates from WGS84 to provided local CRS
+     */
+    public static Envelope transformToLocalCRS(CoordinateReferenceSystem localCRS, Envelope latLonEnvelope) {
+
+        Point bottomLeft = makePoint(new Coordinate(latLonEnvelope.getMinX(), latLonEnvelope.getMinY()));
+        Point topRight = makePoint(new Coordinate(latLonEnvelope.getMaxX(), latLonEnvelope.getMaxY()));
+
+        try {
+            return new Envelope(
+                    transformToLocalCRS(localCRS, bottomLeft).getCoordinate(),
+                    transformToLocalCRS(localCRS, topRight).getCoordinate()
+            );
+        } catch (Exception e) {
+            log.error("Failed to transform", e);
+            return latLonEnvelope;
+        }
+    }
+
+
     public static Geometry transformToLocalCRS(Geometry geometry) throws FactoryException, TransformException {
         if (geometry.isEmpty()){
             return geometry;
@@ -366,6 +395,25 @@ public class ProjectionUtils {
         } catch (Exception e) {
             log.error("Failed to transform", e);
             return geometry;
+        }
+    }
+
+    /**
+     * Converts given envelope coordinates from local crs to WGS84
+     */
+    public static Envelope transformFromLocalCRS(CoordinateReferenceSystem localCRS, Envelope localEnvelope) {
+
+        Point bottomLeft = makePoint(new Coordinate(localEnvelope.getMinX(), localEnvelope.getMinY()));
+        Point topRight = makePoint(new Coordinate(localEnvelope.getMaxX(), localEnvelope.getMaxY()));
+
+        try {
+            return new Envelope(
+                    transformFromLocalCRS(localCRS, bottomLeft).getCoordinate(),
+                    transformFromLocalCRS(localCRS, topRight).getCoordinate()
+            );
+        } catch (Exception e) {
+            log.error("Failed to transform", e);
+            return localEnvelope;
         }
     }
 

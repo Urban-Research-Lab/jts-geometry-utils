@@ -3,6 +3,7 @@ package ru.itmo.idu.geometry;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Point;
 import org.opengis.referencing.FactoryException;
@@ -32,6 +33,10 @@ public class CRSUtils {
     public static CoordinateReferenceSystem getLocalCRS(Geometry geometry) throws FactoryException {
         Point centroid = geometry.getCentroid();
         return getLocalCRS(geometry.getCentroid().getCoordinate());
+    }
+
+    public static CoordinateReferenceSystem getLocalCRS(Envelope envelope) throws FactoryException {
+        return getLocalCRS(envelope.centre());
     }
 
     public static CoordinateReferenceSystem getLocalCRS(Coordinate coordinate) throws FactoryException {
