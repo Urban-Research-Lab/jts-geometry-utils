@@ -30,11 +30,11 @@ public class LineStraightener {
             var startCoord = coords[startIdx];
             var endCoord = coords[rayIdx];
             var line = GeometryUtils.makeLine(startCoord, endCoord);
-            if (pointsToKeep.contains(endCoord)) {
+            if (pointsToKeep != null && pointsToKeep.contains(endCoord)) {
                 newCoords.add(coords[rayIdx]);
                 startIdx = rayIdx;
                 rayIdx = startIdx + 1;
-            } else if (!area.contains(line)) {
+            } else if (area != null && !area.contains(line)) {
                 if (rayIdx == startIdx + 1) {
                     // weird line with segments not inside area
                     newCoords.add(coords[rayIdx]);
@@ -50,7 +50,7 @@ public class LineStraightener {
         } while (rayIdx < coords.length - 1 );
 
         var lastLine = GeometryUtils.makeLine(coords[startIdx], coords[rayIdx]);
-        if (!area.contains(lastLine)) {
+        if (area != null && !area.contains(lastLine)) {
             newCoords.add(coords[rayIdx - 1]);
         }
         newCoords.add(coords[rayIdx]);

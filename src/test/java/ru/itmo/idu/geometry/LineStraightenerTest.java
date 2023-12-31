@@ -1,7 +1,7 @@
 package ru.itmo.idu.geometry;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
 import ru.itmo.idu.geometry.algorithms.LineStraightener;
@@ -25,9 +25,9 @@ public class LineStraightenerTest {
             null
         );
 
-        Assert.assertEquals(2, rz.getCoordinates().length);
-        Assert.assertEquals(0, rz.getCoordinates()[0].x, 0.1);
-        Assert.assertEquals(2, rz.getCoordinates()[1].x, 0.1);
+        Assertions.assertEquals(2, rz.getCoordinates().length);
+        Assertions.assertEquals(0, rz.getCoordinates()[0].x, 0.1);
+        Assertions.assertEquals(2, rz.getCoordinates()[1].x, 0.1);
     }
 
     @Test
@@ -44,7 +44,7 @@ public class LineStraightenerTest {
                 null
         );
 
-        Assert.assertEquals(2, rz.getCoordinates().length);
+        Assertions.assertEquals(2, rz.getCoordinates().length);
     }
 
     @Test
@@ -60,7 +60,7 @@ public class LineStraightenerTest {
                 null
         );
 
-        Assert.assertEquals(rz, originalLine);
+        Assertions.assertEquals(rz, originalLine);
     }
 
     @Test
@@ -78,10 +78,10 @@ public class LineStraightenerTest {
                 List.of(new Coordinate(2, 0))
         );
 
-        Assert.assertEquals(3, rz.getCoordinates().length);
-        Assert.assertEquals(rz.getCoordinates()[0], originalLine.getCoordinates()[0]);
-        Assert.assertEquals(rz.getCoordinates()[1], originalLine.getCoordinates()[2]);
-        Assert.assertEquals(rz.getCoordinates()[2], originalLine.getCoordinates()[3]);
+        Assertions.assertEquals(3, rz.getCoordinates().length);
+        Assertions.assertEquals(rz.getCoordinates()[0], originalLine.getCoordinates()[0]);
+        Assertions.assertEquals(rz.getCoordinates()[1], originalLine.getCoordinates()[2]);
+        Assertions.assertEquals(rz.getCoordinates()[2], originalLine.getCoordinates()[3]);
     }
 
     @Test
@@ -104,9 +104,9 @@ public class LineStraightenerTest {
                 null
         );
 
-        Assert.assertEquals(3, rz.getCoordinates().length);
-        Assert.assertEquals(rz.getCoordinates()[0], originalLine.getCoordinates()[0]);
-        Assert.assertEquals(rz.getCoordinates()[1], originalLine.getCoordinates()[2]);
-        Assert.assertEquals(rz.getCoordinates()[2], originalLine.getCoordinates()[3]);
+        Assertions.assertEquals(3, rz.getCoordinates().length);
+        Assertions.assertEquals(rz.getCoordinates()[0], originalLine.getCoordinates()[0]);
+        Assertions.assertEquals(rz.getCoordinates()[1], originalLine.getCoordinates()[2]);
+        Assertions.assertEquals(rz.getCoordinates()[2], originalLine.getCoordinates()[3]);
     }
 }
