@@ -1,5 +1,6 @@
 package ru.itmo.idu.geometry;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.*;
 
@@ -175,5 +176,18 @@ public class GeometryUtilsTest {
         assertEquals(3, ring.getCoordinates().length);
         assertEquals(0.0, ring.getCoordinates()[2].x, 0.1);
         assertEquals(1.0, ring.getCoordinates()[1].x, 0.1);
+    }
+
+    @Test
+    public void testMakeEmpty() {
+        var emptyPolygon = GeometryUtils.makeEmptyPolygon();
+        Assertions.assertTrue(emptyPolygon.isEmpty());
+
+        var emptyLine = GeometryUtils.makeEmptyLine();
+        Assertions.assertTrue(emptyLine.isEmpty());
+
+        var empty = GeometryUtils.makeEmpty();
+        Assertions.assertTrue(empty.isEmpty());
+        Assertions.assertTrue(empty.isValid());
     }
 }

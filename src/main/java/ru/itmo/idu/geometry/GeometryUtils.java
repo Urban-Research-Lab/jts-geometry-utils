@@ -30,6 +30,18 @@ public class GeometryUtils {
 
     public static PreparedGeometryFactory preparedGeometryFactory = new PreparedGeometryFactory();
 
+    public static Geometry makeEmpty() {
+        return geometryFactory.createEmpty(2);
+    }
+
+    public static Polygon makeEmptyPolygon() {
+        return makePolygon();
+    }
+
+    public static LineString makeEmptyLine() {
+        return makeLine();
+    }
+
     /**
      * Creates a line from 2 given points
      */
@@ -128,7 +140,9 @@ public class GeometryUtils {
     }
 
     public static Polygon makePolygon(Coordinate... coordinates) {
-
+        if (coordinates.length == 0) {
+            return geometryFactory.createPolygon();
+        }
         return new Polygon(
                 new LinearRing(
                         new CoordinateArraySequence(
