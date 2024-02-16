@@ -3,6 +3,7 @@ package ru.itmo.idu.geometry;
 import lombok.val;
 import org.locationtech.jts.geom.*;
 import org.locationtech.jts.geom.impl.CoordinateArraySequence;
+import org.locationtech.jts.geom.prep.PreparedGeometry;
 import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
 import org.locationtech.jts.geom.util.LineStringExtracter;
 import org.locationtech.jts.operation.polygonize.Polygonizer;
@@ -40,6 +41,10 @@ public class GeometryUtils {
 
     public static LineString makeEmptyLine() {
         return makeLine();
+    }
+
+    public static PreparedGeometry prepareGeometry(Geometry g) {
+        return preparedGeometryFactory.create(g);
     }
 
     /**
