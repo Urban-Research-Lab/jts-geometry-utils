@@ -1,5 +1,6 @@
 package ru.itmo.idu.geometry;
 
+import org.apache.commons.lang3.RandomUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
@@ -20,12 +21,19 @@ public class LloydAlgorithmTest {
         Coordinate[] lloydPoints = LloydAlgorithm.generateLloydPointsWGS84(CRSUtils.getLocalCRS(area), area, 1.0);
         Assertions.assertEquals(100, lloydPoints.length);
 
-        Coordinate randomPoint = lloydPoints[35];
-        Coordinate nearest = Arrays.stream(lloydPoints)
-                .filter(c -> c != randomPoint)
-                .min(Comparator.comparingDouble(c -> ProjectionUtils.getDistance(c, randomPoint)))
-                .orElseThrow();
-        Assertions.assertEquals(1.0, ProjectionUtils.getDistance(nearest, randomPoint), 0.1);
+        double averageDist = 0.0;
+        final int pointsCount = 10;
+
+        for (int i = 0; i < pointsCount; ++i) {
+            Coordinate randomPoint = lloydPoints[RandomUtils.nextInt(0, lloydPoints.length)];
+            Coordinate nearest = Arrays.stream(lloydPoints)
+                    .filter(c -> c != randomPoint)
+                    .min(Comparator.comparingDouble(c -> ProjectionUtils.getDistance(c, randomPoint)))
+                    .orElseThrow();
+
+            averageDist += ProjectionUtils.getDistance(nearest, randomPoint);
+        }
+        Assertions.assertEquals(1.0, averageDist / pointsCount, 0.1);
 
     }
 }
