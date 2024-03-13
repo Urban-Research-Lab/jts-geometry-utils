@@ -493,6 +493,10 @@ public class ProjectionUtils {
      * given width and height in meters
      * Due to shape of earth surface closer to poles it may be not a real rectangle
      */
+    public static Geometry makeAABB(double bottomLeftLon, double bottomLeftLat, double width, double height) {
+        return makeAABB(new Coordinate(bottomLeftLon, bottomLeftLat), width, height);
+    }
+
     public static Geometry makeAABB(Coordinate bottomLeft, double width, double height) {
         List<Coordinate> points = new ArrayList<>(5);
         points.add(bottomLeft);

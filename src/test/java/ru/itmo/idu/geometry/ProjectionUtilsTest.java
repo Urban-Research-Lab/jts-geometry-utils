@@ -63,6 +63,15 @@ public class ProjectionUtilsTest {
     }
 
     @Test
+    public void testCreateAABB() {
+        Geometry box = ProjectionUtils.makeAABB(30, 50, 50, 40);
+
+        assertEquals(30.0, box.getEnvelopeInternal().getMinX(), 0.000001);
+        assertEquals(50.0, box.getEnvelopeInternal().getMinY(), 0.000001);
+        assertEquals(2000.0, ProjectionUtils.calcArea(box), 1.0);
+    }
+
+    @Test
     public void calcAreaTest() {
         Geometry geom1 = geometryFactory.createEmpty(2);
         assertEquals(0.0, ProjectionUtils.calcArea(geom1), 0.01);
