@@ -144,6 +144,19 @@ public class GeometryUtils {
         return rz;
     }
 
+    public static Polygon makeRectangle(double bottomLeftX, double bottomLeftY, double width, double height) {
+        return makeRectangle(new Coordinate(bottomLeftX, bottomLeftY), width, height);
+    }
+    public static Polygon makeRectangle(Coordinate bottomLeft, double width, double height) {
+        return makePolygon(
+                bottomLeft,
+                new Coordinate(bottomLeft.x + width, bottomLeft.y),
+                new Coordinate(bottomLeft.x + width, bottomLeft.y + height),
+                new Coordinate(bottomLeft.x, bottomLeft.y + height)
+        );
+    }
+
+
     public static Polygon makePolygon(Coordinate... coordinates) {
         if (coordinates.length == 0) {
             return geometryFactory.createPolygon();

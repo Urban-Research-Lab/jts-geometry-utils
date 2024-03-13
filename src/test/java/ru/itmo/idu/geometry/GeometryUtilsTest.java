@@ -65,6 +65,15 @@ public class GeometryUtilsTest {
     }
 
     @Test
+    public void testMakeRectangle() {
+        Polygon p = GeometryUtils.makeRectangle(10, 10, 30, 40);
+        Envelope e = p.getEnvelopeInternal();
+        assertEquals(10, e.getMinX());
+        assertEquals(50, e.getMaxY());
+        assertEquals(1200.0, p.getArea(), 0.1);
+    }
+
+    @Test
     public void testMakePolygonFromCoordinates() {
         List<Coordinate> list = new ArrayList<>();
         list.add(new Coordinate(30.28687717, 59.72104526));
