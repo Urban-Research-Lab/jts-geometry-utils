@@ -103,6 +103,16 @@ public class GeometryUtilsTest {
     }
 
     @Test
+    public void testMakeLineDirection() {
+        LineString ls = GeometryUtils.makeLineFromDirection(0.0, 0.0, 1.0, Math.PI / 4.0);
+        assertEquals(new Coordinate(0.0, 0.0), ls.getStartPoint().getCoordinate());
+        final Coordinate expectedEnd = new Coordinate(1.0 / Math.sqrt(2), 1.0 / Math.sqrt(2));
+        assertEquals(expectedEnd.x, ls.getEndPoint().getCoordinate().x, 0.0001);
+        assertEquals(expectedEnd.y, ls.getEndPoint().getCoordinate().y, 0.0001);
+        assertEquals(1.0, ls.getLength(), 0.001);
+    }
+
+    @Test
     public void testFlattenGeometry() {
         List<Geometry> rz = GeometryUtils.flattenGeometry(null);
         assertTrue(rz.isEmpty());

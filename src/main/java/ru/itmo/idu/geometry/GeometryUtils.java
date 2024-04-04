@@ -58,6 +58,24 @@ public class GeometryUtils {
         );
     }
 
+    public static LineString makeLine(Point start, Point end) {
+        return makeLine(start.getCoordinate(), end.getCoordinate());
+    }
+
+    /**
+     * Same as makeLine(start, length, angle). Different name becaulse makeLine(4 double values) already exists
+     */
+    public static LineString makeLineFromDirection(double x, double y, double length, double angleInRadians) {
+        return makeLine(new Coordinate(x, y), length, angleInRadians);
+    }
+
+    public static LineString makeLine(Coordinate start, double length, Double angleInRadians) {
+        val endX = start.x + length * Math.cos(angleInRadians);
+        val endY = start.y + length * Math.sin(angleInRadians);
+
+        return GeometryUtils.makeLine(start, new Coordinate(endX, endY));
+    }
+
     public static LineString makeLine(Coordinate... coordinates) {
         if (coordinates.length == 0) {
             return GeometryUtils.geometryFactory.createLineString();
