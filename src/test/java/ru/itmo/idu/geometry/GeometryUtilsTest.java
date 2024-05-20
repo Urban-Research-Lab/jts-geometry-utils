@@ -155,6 +155,15 @@ public class GeometryUtilsTest {
     }
 
     @Test
+    public void testCreateMultipoint() {
+        var mp = GeometryUtils.makeMultiPoint(GeometryUtils.makePoint(0, 0), GeometryUtils.makePoint(1, 1));
+        Assertions.assertEquals(2, mp.getNumGeometries());
+
+        var mp2 = GeometryUtils.makeMultiPoint(new Coordinate(0, 0), new Coordinate(1, 1));
+        Assertions.assertEquals(mp, mp2);
+    }
+
+    @Test
     public void testCreateLine() {
         final Coordinate start = new Coordinate(0, 1);
         final Coordinate end = new Coordinate(1, 2);

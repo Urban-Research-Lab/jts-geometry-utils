@@ -39,6 +39,24 @@ public class GeometryUtils {
         return makePolygon();
     }
 
+    public static MultiPoint makeMultiPoint(Coordinate... coordinates) {
+        Point[] points = new Point[coordinates.length];
+        for (int i = 0; i < coordinates.length; ++i) {
+            points[i] = makePoint(coordinates[i]);
+        }
+        return new MultiPoint(
+                points, geometryFactory
+        );
+    }
+
+    public static MultiPoint makeMultiPoint(Point... points) {
+        return new MultiPoint(points, geometryFactory);
+    }
+
+    public static MultiPoint makeMultiPoint(Collection<Coordinate> coordinates) {
+        return makeMultiPoint(coordinates.toArray(Coordinate[]::new));
+    }
+
     public static LineString makeEmptyLine() {
         return makeLine();
     }
