@@ -354,20 +354,45 @@ public class GeometryUtils {
         return null;
     }
 
-    public static List<LineSegment> geometrySegmentList(Geometry geometry) {
+    /**
+     * Преобразует список координат в список LineSegment, последовательно связывающих эти координаты
+     */
+    public static List<LineSegment> coordinateSegmentList(Coordinate... coordinates) {
         List<LineSegment> segmentList = new ArrayList<>();
-        if(geometry.getCoordinates().length < 2) {
-            return segmentList;
-        }
-
-        Geometry normalized = geometry.norm();
-        for(int i = 0; i < normalized.getCoordinates().length -1; ++i) {
+        for (int i = 0; i < coordinates.length - 1; ++i) {
             LineSegment segment = new LineSegment(
-                    normalized.getCoordinates()[i],
-                    normalized.getCoordinates()[i + 1]
+                    coordinates[i],
+                    coordinates[i + 1]
             );
 
             segmentList.add(segment);
+        }
+        return segmentList;
+    }
+
+    /**
+     * Преобразует геометрию в набор сегментов (LineSegment) ее границ
+     */
+    public static List<LineSegment> geometrySegmentList(Geometry geometry) {
+        List<LineSegment> segmentList = new ArrayList<>();
+
+        var parts = flattenGeometry(geometry);
+        for (var part : parts) {
+            if (geometry.getCoordinates().length < 2) {
+                continue;
+            }
+
+            Geometry normalized = geometry.norm();
+            if (part instanceof Polygon) {
+                final Polygon polygonPart = (Polygon) part;
+                segmentList.addAll(coordinateSegmentList(polygonPart.getExteriorRing().getCoordinates()));
+                for (int interiorIdx = 0; interiorIdx < polygonPart.getNumInteriorRing(); ++interiorIdx) {
+                    segmentList.addAll(coordinateSegmentList(polygonPart.getInteriorRingN(interiorIdx).getCoordinates()));
+                }
+            } else {
+                segmentList.addAll(coordinateSegmentList(part.getCoordinates()));
+            }
+
         }
 
         return segmentList;

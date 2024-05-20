@@ -209,4 +209,36 @@ public class GeometryUtilsTest {
         Assertions.assertTrue(empty.isEmpty());
         Assertions.assertTrue(empty.isValid());
     }
+
+    @Test
+    public void testGeometrySegmentList() {
+        List<LineSegment> emptyList = GeometryUtils.geometrySegmentList(GeometryUtils.makeEmptyPolygon());
+        Assertions.assertTrue(emptyList.isEmpty());
+
+        List<LineSegment> pointList = GeometryUtils.geometrySegmentList(GeometryUtils.makePoint(0.0, 1.0));
+        Assertions.assertTrue(pointList.isEmpty());
+
+        List<LineSegment> simpleLineList = GeometryUtils.geometrySegmentList(GeometryUtils.makeLine(0.0, 0.0, 1.0, 1.0));
+        Assertions.assertEquals(1, simpleLineList.size());
+        Assertions.assertEquals(0.0, simpleLineList.get(0).p0.x, 0.001);
+        Assertions.assertEquals(1.0, simpleLineList.get(0).p1.x, 0.001);
+
+        List<LineSegment> multilineList = GeometryUtils.geometrySegmentList(
+                GeometryUtils.makeGeometryCollection(
+                        GeometryUtils.makeLine(0.0, 0.0, 1.0, 0.0),
+                        GeometryUtils.makeLine(100.0, 100.0, 1000.0, 100.0)
+                )
+        );
+
+        Assertions.assertEquals(2, multilineList.size());
+        Assertions.assertEquals(1.0, multilineList.get(0).getLength());
+        Assertions.assertEquals(900.0, multilineList.get(1).getLength());
+
+        Polygon polygonWithHole = (Polygon) GeometryUtils.makeRectangle(0, 0, 10, 10)
+                .difference(GeometryUtils.makeRectangle(3, 3, 3, 3));
+        Assertions.assertEquals(1, polygonWithHole.getNumInteriorRing());
+
+        List<LineSegment> polygonWithHoleList = GeometryUtils.geometrySegmentList(polygonWithHole);
+        Assertions.assertEquals(8, polygonWithHoleList.size());
+    }
 }
