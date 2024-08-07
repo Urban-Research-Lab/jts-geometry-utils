@@ -123,6 +123,35 @@ public class GeometryUtilsTest {
     }
 
     @Test
+    public void testMakeLineFromSegments() {
+        LineString empty = GeometryUtils.makeLineFromSegments(new ArrayList<>());
+        assertTrue(empty.isEmpty());
+
+        LineString single = GeometryUtils.makeLineFromSegments(List.of(new LineSegment(0.0, 0.0, 0.0, 1.0)));
+        assertEquals(2, single.getCoordinates().length);
+        assertEquals(1.0, single.getLength(), 0.0001);
+
+        LineString twoSegments = GeometryUtils.makeLineFromSegments(
+                List.of(
+                        new LineSegment(0.0, 0.0, 0.0, 1.0),
+                        new LineSegment(0.0, 1.0, 1.0, 1.0)
+                        )
+        );
+        assertEquals(3, twoSegments.getCoordinates().length);
+        assertEquals(2.0, twoSegments.getLength());
+
+        LineString withHole = GeometryUtils.makeLineFromSegments(
+                List.of(
+                        new LineSegment(0.0, 0.0, 0.0, 1.0),
+                        new LineSegment(1.0, 1.0, 1.0, 0.0)
+                )
+        );
+        assertEquals(4, withHole.getCoordinates().length);
+        assertEquals(3.0, withHole.getLength());
+    }
+
+
+    @Test
     public void testFlattenGeometry() {
         List<Geometry> rz = GeometryUtils.flattenGeometry(null);
         assertTrue(rz.isEmpty());

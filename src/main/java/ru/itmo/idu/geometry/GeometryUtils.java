@@ -94,6 +94,26 @@ public class GeometryUtils {
         return makeLine(new Coordinate(x, y), length, angleInRadians);
     }
 
+    /**
+     * Joins provided line segments into single line, connecting them if necessary
+     * Needs separate name as makeLine(List<LineSegment>) clashes with other overloads due to java type erasure
+     */
+    public static LineString makeLineFromSegments(List<LineSegment> segments) {
+        if (segments.isEmpty()) {
+            return makeEmptyLine();
+        }
+        List<Coordinate> coords = new ArrayList<>(segments.size() + 1);
+        coords.add(segments.get(0).p0);
+        for (LineSegment ls : segments) {
+            Coordinate last = coords.get(coords.size() - 1);
+            if (!last.equals(ls.p0)) {
+                coords.add(ls.p0);
+            }
+            coords.add(ls.p1);
+        }
+        return makeLine(coords);
+    }
+
     public static LineString makeLine(Coordinate start, double length, double angleInRadians) {
         return GeometryUtils.makeLine(start, makeCoordinateFromDirection(start, length, angleInRadians));
     }
