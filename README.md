@@ -72,7 +72,7 @@ is a problem with GitHub Gradle registry - you can not use it without GitHub acc
 After you have set up your GitHub access, add this to your dependencies block:
 
 ```kotlin
-implementation("ru.itmo.idu:jts-geometry-utils:3.0.0")
+implementation("ru.itmo.idu:jts-geometry-utils:3.8.2")
 ```
 
 ## Examples

@@ -94,6 +94,16 @@ public class GeometryUtilsTest {
     }
 
     @Test
+    void testMakePointWithDirection() {
+        Coordinate c1 = new Coordinate(0.0, 0.0);
+
+        Coordinate c2 = GeometryUtils.makeCoordinateFromDirection(c1, 1.0, Math.PI / 2);
+
+        assertEquals(0.0, c2.x, 0.0001);
+        assertEquals(1.0, c2.y, 0.0001);
+    }
+
+    @Test
     public void testMakeLineWorksWith3DLines() {
         LineString ls = GeometryUtils.makeLine(new Coordinate(1.0, 1.0, 100.0), new Coordinate(1.0, 1.0, 200.0));
         assertEquals(100.0, ls.getCoordinates()[0].z);

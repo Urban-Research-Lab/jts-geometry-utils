@@ -80,18 +80,22 @@ public class GeometryUtils {
         return makeLine(start.getCoordinate(), end.getCoordinate());
     }
 
+    public static Coordinate makeCoordinateFromDirection(Coordinate start, double length, double angleInRadians) {
+        val endX = start.x + length * Math.cos(angleInRadians);
+        val endY = start.y + length * Math.sin(angleInRadians);
+
+        return new Coordinate(endX, endY);
+    }
+
     /**
-     * Same as makeLine(start, length, angle). Different name becaulse makeLine(4 double values) already exists
+     * Same as makeLine(start, length, angle). Different name because makeLine(4 double values) already exists
      */
     public static LineString makeLineFromDirection(double x, double y, double length, double angleInRadians) {
         return makeLine(new Coordinate(x, y), length, angleInRadians);
     }
 
-    public static LineString makeLine(Coordinate start, double length, Double angleInRadians) {
-        val endX = start.x + length * Math.cos(angleInRadians);
-        val endY = start.y + length * Math.sin(angleInRadians);
-
-        return GeometryUtils.makeLine(start, new Coordinate(endX, endY));
+    public static LineString makeLine(Coordinate start, double length, double angleInRadians) {
+        return GeometryUtils.makeLine(start, makeCoordinateFromDirection(start, length, angleInRadians));
     }
 
     public static LineString makeLine(Coordinate... coordinates) {
@@ -137,6 +141,10 @@ public class GeometryUtils {
 
     public static Point makePoint(double x, double y) {
         return makePoint(new Coordinate(x, y));
+    }
+
+    public static Point makePoint(Coordinate start, double distance, double angleInRadians) {
+        return makePoint(makeCoordinateFromDirection(start, distance, angleInRadians));
     }
 
     public static Point makePoint(Coordinate coordinate) {
