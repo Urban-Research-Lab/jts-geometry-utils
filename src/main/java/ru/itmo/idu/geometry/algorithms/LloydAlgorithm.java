@@ -1,10 +1,7 @@
 package ru.itmo.idu.geometry.algorithms;
 
 import lombok.Setter;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.MultiPoint;
-import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.*;
 import org.locationtech.jts.shape.random.RandomPointsBuilder;
 import org.locationtech.jts.triangulate.VoronoiDiagramBuilder;
 import org.opengis.referencing.FactoryException;
@@ -22,11 +19,11 @@ import java.util.stream.Collectors;
  * Lloyds algorithm fills polygon with given amount of points, distributing them almost equally at even distances
  * from each other. But this method is quite imprecise, so distance between nearby points may vary about 10% of provided value
  * This does not form any regular (rectangular or hex) grid
- *
+ * <p>
  * Starting from initial random points distribution, on each step generates Voronoi diagram, then shifts points to
  * centroids of Voronoi diagram cells. Repeats until process converges.
  *
- * @link https://en.wikipedia.org/wiki/Lloyd%27s_algorithm
+ * @link <a href="https://en.wikipedia.org/wiki/Lloyd%27s_algorithm">...</a>
  */
 public class LloydAlgorithm {
 
@@ -35,8 +32,6 @@ public class LloydAlgorithm {
     private final double pointDistance;
 
     private MultiPoint currentPoints;
-
-    private List<Coordinate> result;
 
     @Setter
     private int maxIterations = 50;
@@ -71,8 +66,15 @@ public class LloydAlgorithm {
         var centroids = new ArrayList<Coordinate>();
         for (int i = 0; i < clusters.getNumGeometries(); ++i) {
             var diagramCell = clusters.getGeometryN(i);
-            var clampedDiagramCell = diagramCell.intersection(area);
-            centroids.add(clampedDiagramCell.getCentroid().getCoordinate());
+            try {
+                var clampedDiagramCell = diagramCell.intersection(area);
+                if (clampedDiagramCell.isEmpty()) {
+                    continue;
+                }
+                centroids.add(clampedDiagramCell.getCentroid().getCoordinate());
+            } catch (TopologyException ex) {
+                // we can't do anything, just ignore this cell
+            }
         }
         return centroids;
     }
@@ -113,5 +115,12 @@ public class LloydAlgorithm {
         var algo = new LloydAlgorithm(localArea, metersBetweenPoints);
         Coordinate[] localCoords = algo.generateLloydPoints();
         return Arrays.stream(localCoords).map(coord -> ProjectionUtils.transformFromLocalCRS(crs, coord)).toArray(Coordinate[]::new);
+    }
+
+    /**
+     * Static wrapper helper
+     */
+    public static Coordinate[] generateLloydPoints(Geometry area, double distanceBetweenPoints) {
+        return new LloydAlgorithm(area, distanceBetweenPoints).generateLloydPoints();
     }
 }
