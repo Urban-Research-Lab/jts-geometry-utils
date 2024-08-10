@@ -428,15 +428,15 @@ public class GeometryUtils {
                 continue;
             }
 
-            Geometry normalized = geometry.norm();
-            if (part instanceof Polygon) {
-                final Polygon polygonPart = (Polygon) part;
+            Geometry normalizedPart = part.norm();
+            if (normalizedPart instanceof Polygon) {
+                final Polygon polygonPart = (Polygon) normalizedPart;
                 segmentList.addAll(coordinateSegmentList(polygonPart.getExteriorRing().getCoordinates()));
                 for (int interiorIdx = 0; interiorIdx < polygonPart.getNumInteriorRing(); ++interiorIdx) {
                     segmentList.addAll(coordinateSegmentList(polygonPart.getInteriorRingN(interiorIdx).getCoordinates()));
                 }
             } else {
-                segmentList.addAll(coordinateSegmentList(part.getCoordinates()));
+                segmentList.addAll(coordinateSegmentList(normalizedPart.getCoordinates()));
             }
 
         }

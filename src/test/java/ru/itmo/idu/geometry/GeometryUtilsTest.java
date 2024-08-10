@@ -289,4 +289,16 @@ public class GeometryUtilsTest {
         List<LineSegment> polygonWithHoleList = GeometryUtils.geometrySegmentList(polygonWithHole);
         Assertions.assertEquals(8, polygonWithHoleList.size());
     }
+
+    @Test
+    public void testGeometrySegmentListNormalizes() {
+        Geometry polygon = GeometryUtils.makePolygon(
+                new Coordinate(0.0, 0.0),
+                new Coordinate(1.0, 0.0),
+                new Coordinate(0.5, 0.5)
+        );
+
+        List<LineSegment> segments = GeometryUtils.geometrySegmentList(polygon);
+        Assertions.assertEquals(new LineSegment(0.0, 0.0, 0.5, 0.5), segments.get(0));
+    }
 }
