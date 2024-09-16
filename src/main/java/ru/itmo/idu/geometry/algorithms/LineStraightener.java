@@ -3,6 +3,7 @@ package ru.itmo.idu.geometry.algorithms;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.prep.PreparedGeometry;
 import ru.itmo.idu.geometry.GeometryUtils;
 
 import java.util.ArrayList;
@@ -26,6 +27,8 @@ public class LineStraightener {
         var newCoords = new ArrayList<Coordinate>();
         newCoords.add(coords[startIdx]);
 
+        PreparedGeometry preparedArea = area != null ? GeometryUtils.prepareGeometry(area) : null;
+
         do {
             var startCoord = coords[startIdx];
             var endCoord = coords[rayIdx];
@@ -34,7 +37,7 @@ public class LineStraightener {
                 newCoords.add(coords[rayIdx]);
                 startIdx = rayIdx;
                 rayIdx = startIdx + 1;
-            } else if (area != null && !area.contains(line)) {
+            } else if (preparedArea != null && !preparedArea.contains(line)) {
                 if (rayIdx == startIdx + 1) {
                     // weird line with segments not inside area
                     newCoords.add(coords[rayIdx]);
@@ -50,7 +53,7 @@ public class LineStraightener {
         } while (rayIdx < coords.length - 1 );
 
         var lastLine = GeometryUtils.makeLine(coords[startIdx], coords[rayIdx]);
-        if (area != null && !area.contains(lastLine)) {
+        if (preparedArea != null && !preparedArea.contains(lastLine)) {
             newCoords.add(coords[rayIdx - 1]);
         }
         newCoords.add(coords[rayIdx]);
