@@ -178,7 +178,7 @@ public class ProjectionUtils {
                 return projed.getLength();
             }
         } catch (Exception ex) {
-            log.error("Failed to calc area", ex);
+            log.error("Failed to calc length", ex);
             return geometry.getLength();
         }
     }
@@ -195,7 +195,7 @@ public class ProjectionUtils {
                 return projed.getLength();
             }
         } catch (Exception ex) {
-            log.error("Failed to calc area", ex);
+            log.error("Failed to calc length", ex);
             return geometry.getLength();
         }
     }
@@ -251,7 +251,7 @@ public class ProjectionUtils {
         try {
             return JTS.transform(geometry, latLonToXY);
         } catch (TransformException e) {
-            log.error("Failed to transsform", e);
+            log.error("Failed to transform", e);
             return geometry;
         }
     }
