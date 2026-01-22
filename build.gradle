@@ -1,57 +1,65 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+}
 
 group 'ru.itmo.idu'
 version '3.8.4'
 
 repositories {
+    mavenLocal()
+    mavenCentral()
     maven {
         url 'https://repo.osgeo.org/repository/release/'
     }
     maven {
         url 'https://repo.boundlessgeo.com/main'
     }
-    mavenLocal()
-    mavenCentral()
+
 }
 
 configurations {
     // com.vividsolutions.jts is migrated to org.locationtech.jts but some older libs do not know about it
     compile.exclude group: 'com.vividsolutions'
+    implementation.exclude module: 'jai_core'
 }
 
-apply plugin: 'java'
-apply plugin: 'maven-publish'
-
 dependencies {
-    compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.28'
-    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.28'
+    compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.42'
+    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.42'
 
-    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
-    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.8.1'
-    implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: '2.0.17'
+    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.20.0'
+    implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.5.0'
 
 
-    implementation group: 'org.locationtech.jts', name: 'jts-core', version: '1.19.0'
-    implementation group: 'org.locationtech.jts.io', name: 'jts-io-common', version: '1.19.0'
+    implementation group: 'org.locationtech.jts', name: 'jts-core', version: '1.20.0'
+    implementation group: 'org.locationtech.jts.io', name: 'jts-io-common', version: '1.20.0'
 
-    implementation group: 'com.google.code.gson', name: 'gson', version: '2.9.1'
+    implementation group: 'com.google.code.gson', name: 'gson', version: '2.13.2'
 
+    // Later 34.0
     implementation group: 'org.geotools', name: 'gt-main', version: '28.2'
     implementation group: 'org.geotools', name: 'gt-epsg-hsql', version: '28.2'
     implementation group: 'org.geotools', name: 'gt-opengis', version: '28.2'
     implementation group: 'org.geotools', name: 'gt-geojson', version: '28.2'
-    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
+
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.14.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:6.0.2'
 }
 
 
-task sourcesJar(type: Jar) {
-    from sourceSets.main.allJava
-    classifier "sources"
-}
-
-task javadocJar(type: Jar) {
-    from javadoc.destinationDir
-    classifier "javadoc"
-}
+//task sourcesJar(type: Jar) {
+//    archiveClassifier.set('sources')
+//    from sourceSets.main.allJava
+////    classifier "sources"
+//}
+//
+//task javadocJar(type: Jar) {
+//    archiveClassifier.set('sources')
+//    from javadoc.destinationDir
+////    classifier "javadoc"
+//}
 
 publishing {
     repositories {
