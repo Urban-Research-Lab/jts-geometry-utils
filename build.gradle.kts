@@ -18,6 +18,12 @@ repositories {
 
 }
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
 configurations.all {
     // com.vividsolutions.jts is migrated to org.locationtech.jts but some older libs do not know about it
     exclude(group = "com.vividsolutions")
