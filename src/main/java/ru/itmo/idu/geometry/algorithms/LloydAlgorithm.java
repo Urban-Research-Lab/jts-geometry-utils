@@ -1,12 +1,12 @@
 package ru.itmo.idu.geometry.algorithms;
 
 import lombok.Setter;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.operation.TransformException;
 import org.locationtech.jts.geom.*;
 import org.locationtech.jts.shape.random.RandomPointsBuilder;
 import org.locationtech.jts.triangulate.VoronoiDiagramBuilder;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.TransformException;
 import ru.itmo.idu.geometry.GeometryUtils;
 import ru.itmo.idu.geometry.ProjectionUtils;
 

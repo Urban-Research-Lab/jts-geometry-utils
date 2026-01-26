@@ -1,12 +1,12 @@
 package ru.itmo.idu.geometry;
 
 import org.apache.commons.lang3.RandomUtils;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.operation.TransformException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.operation.TransformException;
 import ru.itmo.idu.geometry.algorithms.LloydAlgorithm;
 
 import java.util.Arrays;

@@ -1,12 +1,12 @@
 package ru.itmo.idu.geometry;
 
+import org.geotools.api.feature.Feature;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.geojson.feature.FeatureJSON;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
-import org.opengis.feature.Feature;
 
 import java.io.IOException;
 
