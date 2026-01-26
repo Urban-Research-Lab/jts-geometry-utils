@@ -96,16 +96,16 @@ public class GeometryUtils {
 
     /**
      * Joins provided line segments into single line, connecting them if necessary
-     * Needs separate name as makeLine(List<LineSegment>) clashes with other overloads due to java type erasure
+     * Needs separate name as {@code makeLine(List<LineSegment>)} clashes with other overloads due to java type erasure
      */
     public static LineString makeLineFromSegments(List<LineSegment> segments) {
         if (segments.isEmpty()) {
             return makeEmptyLine();
         }
         List<Coordinate> coords = new ArrayList<>(segments.size() + 1);
-        coords.add(segments.get(0).p0);
+        coords.add(segments.getFirst().p0);
         for (LineSegment ls : segments) {
-            Coordinate last = coords.get(coords.size() - 1);
+            Coordinate last = coords.getLast();
             if (!last.equals(ls.p0)) {
                 coords.add(ls.p0);
             }
@@ -201,10 +201,10 @@ public class GeometryUtils {
      */
     public static List<Coordinate> closeRing(List<Coordinate> coordinates) {
         List<Coordinate> rz = new ArrayList<>(coordinates);
-        if (coordinates.get(0).equals2D(coordinates.get(coordinates.size() - 1))) {
+        if (coordinates.getFirst().equals2D(coordinates.getLast())) {
             return rz;
         }
-        rz.add(coordinates.get(0));
+        rz.add(coordinates.getFirst());
         return rz;
     }
 
@@ -313,30 +313,32 @@ public class GeometryUtils {
      */
     public static Geometry getBoundary(Geometry area) {
         Geometry boundary = null;
-        if (area instanceof Polygon) {
-            boundary =((Polygon) area).getExteriorRing();
-        } else if (area instanceof MultiPolygon ){
-            boundary = ((Polygon)area.getGeometryN(0)).getExteriorRing();
-            for (int i = 1; i < area.getNumGeometries(); ++i) {
-                boundary = boundary.union((((Polygon)area.getGeometryN(i)).getExteriorRing()));
+        switch (area) {
+            case Polygon polygon -> boundary = polygon.getExteriorRing();
+            case MultiPolygon multiPolygon -> {
+                boundary = ((Polygon) area.getGeometryN(0)).getExteriorRing();
+                for (int i = 1; i < area.getNumGeometries(); ++i) {
+                    boundary = boundary.union((((Polygon) area.getGeometryN(i)).getExteriorRing()));
+                }
             }
-        } else if (area instanceof GeometryCollection) {
-            for (int i = 0; i < area.getNumGeometries(); ++i) {
-                Geometry part = area.getGeometryN(i);
-                if (!(part instanceof Polygon)) {
-                    continue;
+            case GeometryCollection geometryCollection -> {
+                for (int i = 0; i < area.getNumGeometries(); ++i) {
+                    Geometry part = area.getGeometryN(i);
+                    if (!(part instanceof Polygon)) {
+                        continue;
+                    }
+                    if (boundary == null) {
+                        boundary = ((Polygon) part).getExteriorRing();
+                    } else {
+                        boundary = boundary.union((((Polygon) part).getExteriorRing()));
+                    }
                 }
                 if (boundary == null) {
-                    boundary = ((Polygon) part).getExteriorRing();
-                } else {
-                    boundary = boundary.union((((Polygon)part).getExteriorRing()));
+                    throw new IllegalArgumentException("Border is a geometry collection without any polygons");
                 }
             }
-            if (boundary == null) {
-                throw new IllegalArgumentException("Border is a geometry collection without any polygons");
-            }
-        } else {
-            throw new IllegalArgumentException("Unknown border shape type: " + area.getClass().getSimpleName());
+            default ->
+                    throw new IllegalArgumentException("Unknown border shape type: " + area.getClass().getSimpleName());
         }
         return boundary;
     }
@@ -383,9 +385,8 @@ public class GeometryUtils {
                     || error.getErrorType() == TopologyValidationError.RING_SELF_INTERSECTION) { // self-intersections may be healed by building a buffer
                 return geometry.buffer(0.0);
             }
-            if (error.getErrorType() == TopologyValidationError.HOLE_OUTSIDE_SHELL && geometry instanceof Polygon) { // instead of building polygon with holes - build a polygon and then subtract holes one by one
-                val polygon = (Polygon)geometry;
-                val exterior = (LinearRing) polygon.getExteriorRing();
+            if (error.getErrorType() == TopologyValidationError.HOLE_OUTSIDE_SHELL && geometry instanceof Polygon polygon) { // instead of building polygon with holes - build a polygon and then subtract holes one by one
+                val exterior = polygon.getExteriorRing();
                 val holesCount = polygon.getNumInteriorRing();
                 var newPolygon = new Polygon(exterior, null, geometryFactory);
                 for (int holeIdx = 0; holeIdx < holesCount; ++holeIdx) {
@@ -429,8 +430,7 @@ public class GeometryUtils {
             }
 
             Geometry normalizedPart = part.norm();
-            if (normalizedPart instanceof Polygon) {
-                final Polygon polygonPart = (Polygon) normalizedPart;
+            if (normalizedPart instanceof Polygon polygonPart) {
                 segmentList.addAll(coordinateSegmentList(polygonPart.getExteriorRing().getCoordinates()));
                 for (int interiorIdx = 0; interiorIdx < polygonPart.getNumInteriorRing(); ++interiorIdx) {
                     segmentList.addAll(coordinateSegmentList(polygonPart.getInteriorRingN(interiorIdx).getCoordinates()));
@@ -525,7 +525,7 @@ public class GeometryUtils {
             return geometryFactory.createEmpty(first.getDimension());
         }
         if (results.size() == 1) {
-            return results.get(0);
+            return results.getFirst();
         }
         return geometryFactory.createGeometryCollection(results.toArray(Geometry[]::new));
     }

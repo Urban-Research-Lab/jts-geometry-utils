@@ -13,7 +13,6 @@ import ru.itmo.idu.geometry.ProjectionUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Lloyds algorithm fills polygon with given amount of points, distributing them almost equally at even distances
@@ -23,7 +22,7 @@ import java.util.stream.Collectors;
  * Starting from initial random points distribution, on each step generates Voronoi diagram, then shifts points to
  * centroids of Voronoi diagram cells. Repeats until process converges.
  *
- * @link <a href="https://en.wikipedia.org/wiki/Lloyd%27s_algorithm">...</a>
+ * @see <a href="https://en.wikipedia.org/wiki/Lloyd%27s_algorithm">Lloyd's algorithm</a>
  */
 public class LloydAlgorithm {
 
@@ -80,7 +79,7 @@ public class LloydAlgorithm {
     }
 
     private MultiPoint createMultiPoint(List<Coordinate> coordinates) {
-        var points = coordinates.stream().map(point -> area.getFactory().createPoint(point) ).collect(Collectors.toList());
+        var points = coordinates.stream().map(point -> area.getFactory().createPoint(point) ).toList();
         return GeometryUtils.geometryFactory.createMultiPoint(points.toArray(Point[]::new));
     }
 

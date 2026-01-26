@@ -4,7 +4,7 @@ plugins {
 }
 
 group "ru.itmo.idu"
-version "3.8.4"
+version "4.0"
 
 repositories {
     mavenLocal()
@@ -22,6 +22,8 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
+    withSourcesJar()
+    withJavadocJar()
 }
 
 configurations.all {
@@ -72,4 +74,13 @@ publishing {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+tasks.compileJava {
+    options.encoding = "UTF-8"
+}
+
+tasks.javadoc {
+    options.encoding = "UTF-8"
+
 }
