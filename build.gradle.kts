@@ -3,8 +3,8 @@ plugins {
     id("maven-publish")
 }
 
-group "ru.itmo.idu"
-version "4.0.0"
+group = "ru.itmo.idu"
+version = "4.0.0"
 
 repositories {
     mavenLocal()
