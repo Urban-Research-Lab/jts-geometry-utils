@@ -26,6 +26,9 @@ java {
     withJavadocJar()
 }
 
+val githubUser: String? = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
+val githubPass: String? = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
+
 configurations.all {
     // com.vividsolutions.jts is migrated to org.locationtech.jts but some older libs do not know about it
     exclude(group = "com.vividsolutions")
@@ -60,8 +63,8 @@ publishing {
             name = "GitHubPackages"
             url = uri("https://maven.pkg.github.com/Urban-Research-Lab/jts-geometry-utils")
             credentials {
-                username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
-                password = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
+                username = githubUser
+                password = githubPass
             }
         }
     }
