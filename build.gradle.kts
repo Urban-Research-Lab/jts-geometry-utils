@@ -53,7 +53,7 @@ dependencies {
     implementation(group = "org.geotools", name = "gt-epsg-hsql", version = "34.0")
     implementation(group = "org.geotools", name = "gt-geojson", version = "34.0")
 
-    testRuntimeOnly(group = "org.junit.platform", name = "junit-platform-launcher", version = "1.14.2")
+    testRuntimeOnly(group = "org.junit.platform", name = "junit-platform-launcher", version = "6.0.2")
     testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = "6.0.2")
 }
 
