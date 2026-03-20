@@ -1,0 +1,29 @@
+stages:
+  - test
+  - publish
+
+default:
+  image: gradle:8.7-jdk21
+  before_script:
+    - chmod +x ./gradlew
+
+unit_tests:
+  stage: test
+  script:
+    - ./gradlew build --info
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - build/test-results/test/*.xml
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"'
+
+publish_package:
+  stage: publish
+  script:
+    - ./gradlew publish --info
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: manual

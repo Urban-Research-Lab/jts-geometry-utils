@@ -57,11 +57,17 @@ dependencies {
 publishing {
     repositories {
         maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/Urban-Research-Lab/jts-geometry-utils")
-            credentials {
-                username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
-                password = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
+            name = "GitLab"
+            url = uri(
+                System.getenv("CI_API_V4_URL") +
+                        "/projects/" + System.getenv("CI_PROJECT_ID") + "/packages/maven"
+            )
+            credentials(HttpHeaderCredentials::class) {
+                name = "Job-Token"
+                value = System.getenv("CI_JOB_TOKEN")
+            }
+            authentication {
+                create<HttpHeaderAuthentication>("header")
             }
         }
     }
