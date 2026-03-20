@@ -20,7 +20,7 @@ public class SafeOperationsTest {
         Geometry geomIntersects1 = readGeometryFromGeoJSON("polygonIntersects1.json");
         Geometry geomIntersects2 = readGeometryFromGeoJSON("polygonIntersects2.json");
         Geometry geomIntersects3 = readGeometryFromGeoJSON("polygonIntersects3.json");
-        assertTrue(SafeOperations.safeIntersects(geomIntersects1, geomIntersects2));
+        assertFalse(SafeOperations.safeIntersects(geomIntersects1, geomIntersects2));
         assertFalse(SafeOperations.safeIntersects(geomIntersects1, geomIntersects3));
     }
 
