@@ -18,6 +18,7 @@ repositories {
 
 }
 
+
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
@@ -58,16 +59,13 @@ publishing {
     repositories {
         maven {
             name = "GitLab"
-            url = uri(
-                System.getenv("CI_API_V4_URL") +
-                        "/projects/" + System.getenv("CI_PROJECT_ID") + "/packages/maven"
-            )
-            credentials(HttpHeaderCredentials::class) {
-                name = "Job-Token"
-                value = System.getenv("CI_JOB_TOKEN")
+            url = uri("https://gitlab.r-tim.com/api/v4/projects/6/packages/maven")
+            credentials(PasswordCredentials::class) {
+                username = project.findProperty("gitlab.user") as String? ?: System.getenv("GITLAB_USERNAME")
+                password = project.findProperty("gitlab.token") as String? ?: System.getenv("GITLAB_TOKEN")
             }
             authentication {
-                create<HttpHeaderAuthentication>("header")
+                create<BasicAuthentication>("basic")
             }
         }
     }
