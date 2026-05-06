@@ -20,6 +20,7 @@ import org.locationtech.jts.simplify.TopologyPreservingSimplifier;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static ru.itmo.idu.geometry.CRSUtils.getLocalCRS;
 import static ru.itmo.idu.geometry.CRSUtils.getLocalCRSTransform;
@@ -38,6 +39,16 @@ public class ProjectionUtils {
 
     public static MathTransform xyToLatLon;
 
+    /**
+     * Кэш MathTransform для пар (WGS84, localCRS) и (localCRS, WGS84).
+     * CRS.findMathTransform в GeoTools — точка contention под параллельной нагрузкой
+     * (внутри идут lookup'ы через synchronized factory finder), поэтому при многократном
+     * вызове методов, принимающих CoordinateReferenceSystem, выгодно один раз построить
+     * MathTransform и переиспользовать его. MathTransform thread-safe для read-only операций.
+     */
+    private static final ConcurrentHashMap<CoordinateReferenceSystem, MathTransform> wgsToLocalCache = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<CoordinateReferenceSystem, MathTransform> localToWgsCache = new ConcurrentHashMap<>();
+
     static {
         String code = "EPSG:3857";
         CoordinateReferenceSystem auto;
@@ -52,6 +63,26 @@ public class ProjectionUtils {
             log.error("Failed to create transforms", e);
             throw new RuntimeException(e);
         }
+    }
+
+    private static MathTransform wgsToLocal(CoordinateReferenceSystem localCrs) throws FactoryException {
+        MathTransform mt = wgsToLocalCache.get(localCrs);
+        if (mt != null) {
+            return mt;
+        }
+        mt = CRS.findMathTransform(DefaultGeographicCRS.WGS84, localCrs);
+        MathTransform existing = wgsToLocalCache.putIfAbsent(localCrs, mt);
+        return existing != null ? existing : mt;
+    }
+
+    private static MathTransform localToWgs(CoordinateReferenceSystem localCrs) throws FactoryException {
+        MathTransform mt = localToWgsCache.get(localCrs);
+        if (mt != null) {
+            return mt;
+        }
+        mt = CRS.findMathTransform(localCrs, DefaultGeographicCRS.WGS84);
+        MathTransform existing = localToWgsCache.putIfAbsent(localCrs, mt);
+        return existing != null ? existing : mt;
     }
 
 
@@ -105,8 +136,8 @@ public class ProjectionUtils {
 
             geom = (Geometry) geom.clone();
 
-            val globalToLocal = CRS.findMathTransform(DefaultGeographicCRS.WGS84, localCrs);
-            val localToGlobal = CRS.findMathTransform(localCrs, DefaultGeographicCRS.WGS84);
+            val globalToLocal = wgsToLocal(localCrs);
+            val localToGlobal = localToWgs(localCrs);
 
             Geometry projectedGeom = JTS.transform(geom, globalToLocal);
             // buffer
@@ -306,7 +337,7 @@ public class ProjectionUtils {
         if (geometry.isEmpty()){
             return geometry;
         }
-        return JTS.transform(geometry, CRS.findMathTransform(DefaultGeographicCRS.WGS84, crs));
+        return JTS.transform(geometry, wgsToLocal(crs));
     }
 
     public static Coordinate transformToLocalCRS(Coordinate coordinate) {
@@ -321,7 +352,7 @@ public class ProjectionUtils {
     public static Coordinate transformToLocalCRS(CoordinateReferenceSystem crs, Coordinate coordinate) {
         try {
             Coordinate dest = new Coordinate();
-            return JTS.transform(coordinate, dest, CRS.findMathTransform( DefaultGeographicCRS.WGS84, crs));
+            return JTS.transform(coordinate, dest, wgsToLocal(crs));
         } catch (TransformException | FactoryException e) {
             log.error("Failed to transform", e);
             return coordinate;
@@ -333,7 +364,7 @@ public class ProjectionUtils {
             Coordinate dest = new Coordinate();
             return JTS.transform(coordinate,
                     dest,
-                    CRS.findMathTransform(crs, DefaultGeographicCRS.WGS84));
+                    localToWgs(crs));
         } catch (Exception e) {
             log.error("Failed to transform", e);
             return coordinate;
@@ -379,7 +410,7 @@ public class ProjectionUtils {
             return geometry;
         }
         try {
-            return JTS.transform(geometry, CRS.findMathTransform(crs, DefaultGeographicCRS.WGS84));
+            return JTS.transform(geometry, localToWgs(crs));
         } catch (Exception e) {
             log.error("Failed to transform", e);
             return geometry;
@@ -571,8 +602,8 @@ public class ProjectionUtils {
      * */
     public static LineString increaseLineLength(CoordinateReferenceSystem localCrs, LineString ls, double fraction) {
         try {
-            val globalToLocal = CRS.findMathTransform(DefaultGeographicCRS.WGS84, localCrs);
-            val localToGlobal = CRS.findMathTransform(localCrs, DefaultGeographicCRS.WGS84);
+            val globalToLocal = wgsToLocal(localCrs);
+            val localToGlobal = localToWgs(localCrs);
 
             LineString lsLocal = (LineString) JTS.transform(ls, globalToLocal);
             LineString increased = GeometryUtils.increaseLineLength(lsLocal, fraction);
