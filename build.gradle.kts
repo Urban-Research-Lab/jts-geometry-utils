@@ -18,6 +18,7 @@ repositories {
 
 }
 
+
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
@@ -57,11 +58,14 @@ dependencies {
 publishing {
     repositories {
         maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/Urban-Research-Lab/jts-geometry-utils")
-            credentials {
-                username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
-                password = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
+            name = "GitLab"
+            url = uri("https://gitlab.r-tim.com/api/v4/projects/6/packages/maven")
+            credentials(PasswordCredentials::class) {
+                username = project.findProperty("gitlab.user") as String? ?: System.getenv("GITLAB_USERNAME")
+                password = project.findProperty("gitlab.token") as String? ?: System.getenv("GITLAB_TOKEN")
+            }
+            authentication {
+                create<BasicAuthentication>("basic")
             }
         }
     }
