@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "ru.itmo.idu"
-version = "4.1.0"
+version = "4.2.0"
 
 repositories {
     mavenLocal()
